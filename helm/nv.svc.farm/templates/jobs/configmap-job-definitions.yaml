@@ -1,0 +1,30 @@
+{{- $mergedJobsSvc := mergeOverwrite (deepCopy .Values.defaults) (deepCopy .Values.global)  (deepCopy (index $.Values.apps "jobs")) -}}
+{{- $ctx := dict "svcName" "jobs" "mergedSvc" $mergedJobsSvc "root" $ "Chart" .Chart "Release" .Release -}}
+
+{{- if $mergedJobsSvc.enabled -}}
+
+{{ $jobList := list }}
+
+{{- if $mergedJobsSvc.serviceConfig.load_default_job_definitions -}}
+  {{- range $item := $mergedJobsSvc.serviceConfig.definitions -}}
+    {{ $jobList = append $jobList (printf "files/job_definitions/%s.json" $item) }}
+  {{- end }}
+{{- end }}
+
+
+{{- if $jobList -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ .Release.Name }}-job-definitions"
+  labels:
+  {{- include "nv-svc-farm.app.labels" $ctx | nindent 4 }}
+data:
+{{ (.Files.Glob "files/scripts/load_job_definitions.sh").AsConfig | indent 2 }}
+{{- range $item := $jobList }}
+  {{ ($.Files.Glob $item ).AsConfig | nindent 2}}
+{{- end }}
+
+{{- end }}
+
+{{- end }}

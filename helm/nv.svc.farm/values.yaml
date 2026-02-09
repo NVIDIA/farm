@@ -1,0 +1,894 @@
+global:
+  image:
+    # -- Image Repository
+    # @section -- Global
+    repository: "ghcr.io/nvidia/farm"
+    # -- Image Tag
+    # @section -- Global
+    tag: ""
+  # -- Configuration for Init Containers
+  initImage:
+    # -- Init image resources
+    # @section -- Global
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 500m
+        memory: 512Mi
+  # -- Configuration for Application, not directly an Application setting, should not be a template
+  # @section -- Global
+  serviceConfig:
+    jobs_service_url: ""
+    tasks_service_url: ""
+    controller_service_url: ""
+  # Global Application Settings
+  settings:
+    nv:
+      svc:
+        server:
+          http:
+            # -- Available Cors Settings
+            # @section -- Global
+            cors:
+              enabled: true
+              allow_origins: ["*"]
+              allow_credentials: false
+              allow_methods: ["*"]
+              allow_headers: ["*"]
+        farm:
+          # -- Available Controller Settings
+          # @section -- Global
+          controller:
+            service_host_url_format_str: ""
+            agents_service_url: "{{ include \"nv-svc-farm.app.connection-string\" (dict \"svcName\" \"agents\" \"root\" .root) }}"
+            tasks_service_url: "{{ include \"nv-svc-farm.app.connection-string\" (dict \"svcName\" \"tasks\" \"root\" .root) }}"
+            operator_service_url: "{{ include \"nv-svc-farm.app.connection-string\" (dict \"svcName\" \"operator\" \"root\" .root) }}"
+
+# External Dependencies Configuration
+# Configure external MySQL and Redis instances (not deployed by this chart)
+external:
+  # -- External MySQL Configuration
+  # @section -- External Dependencies
+  mysql:
+    # -- Enable external MySQL connection
+    enabled: false
+    # -- MySQL host (e.g., "mysql.database.svc.cluster.local")
+    host: ""
+    # -- MySQL port
+    port: 3306
+    # -- MySQL authentication configuration
+    auth:
+      # -- Database name
+      database: "ovFarmTaskStore"
+      # -- MySQL username
+      username: "ovfarm"
+      # -- MySQL password (leave empty to use existingSecret)
+      password: ""
+      # -- Name of existing secret containing MySQL password
+      existingSecret: null
+      # -- Key in existingSecret that contains the password
+      existingSecretPasswordKey: "mysql-password"
+
+  # -- External Redis Configuration
+  # @section -- External Dependencies
+  redis:
+    # -- Enable external Redis connection
+    enabled: false
+    # -- Redis host (e.g., "redis.cache.svc.cluster.local")
+    host: ""
+    # -- Redis port
+    port: 6379
+    # -- Redis authentication configuration
+    auth:
+      # -- Enable Redis authentication
+      enabled: false
+      # -- Redis password (leave empty to use existingSecret)
+      password: ""
+      # -- Name of existing secret containing Redis password
+      existingSecret: null
+      # -- Key in existingSecret that contains the password
+      existingSecretPasswordKey: "redis-password"
+    # -- Redis TLS configuration
+    tls:
+      # -- Enable TLS connection (uses rediss:// instead of redis://)
+      enabled: false
+
+# Application Specific Settings
+apps:
+  # Controller Application Specific Settings / Overrides
+  controller:
+    # -- Enable Controller
+    # @section -- Controller
+    enabled: true
+    initImage:
+      # -- List of Applications this service should wait for before starting (dependencies).
+      # @section -- Controller
+      waitForServices:
+      - agents
+      - logs
+      - jobs
+      - tasks
+    # -- Additional Checksums to add to Deployment, causes rollout on change.
+    # @section -- Controller
+    configMapChecksumTemplate: "nv-svc-farm.controller.checksums"
+    # -- Role that this Application service account should bind to
+    # @section -- Controller
+    role:
+      # -- Create role/rolebinding
+      # @section -- Controller
+      create: true
+      # -- Role Permissions
+      # @section -- Controller
+      rules:
+      - apiGroups: ["batch"]
+        resources: ["jobs", "jobs/status"]
+        verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+      - apiGroups: [""]
+        resources: ["pods", "pods/log"]
+        verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+    # -- Extra volume mounts to add to container/deployment, excluding configuration configmap (automatic)
+    # @section -- Controller
+    extraVolumeMounts:
+      - name: capacity-config
+        mountPath: /etc/nvidia/farm/agent
+      - name: job-template-spec-override-config
+        mountPath: /etc/nvidia/farm/job-spec
+      - name: container-spec-override-config
+        mountPath: /etc/nvidia/farm/container-spec
+    # -- Extra volumes to be attached to Controller Deployment
+    # @section -- Controller
+    extraVolumes:
+      - name: capacity-config
+        configMap:
+          name: "{{ .Release.Name }}-capacity"
+      - name: job-template-spec-override-config
+        configMap:
+          name: "{{ .Release.Name }}-job-template-spec-overrides"
+      - name: container-spec-override-config
+        configMap:
+          name: "{{ .Release.Name }}-container-spec-overrides"
+    # -- Configuration for Controller, not directly an Application setting, should not be a template
+    # @section -- Controller
+    serviceConfig:
+      # -- Base URL for applications
+      # @section -- Controller
+      services_base_url: "/queue/management"
+      # -- URL Prefix for Controller API, used by template in apps.controller.settings.nv.svc.farm.controller.url_prefix
+      # @section -- Controller
+      url_prefix: "/agent"
+      # -- Capacity used to render /templates/controller/configmap-capacity.yaml
+      # @section -- Controller
+      capacity:
+        # -- Specify the max number of jobs the controller is allowed to run.
+        # @section -- Controller
+        max_capacity: 32
+      k8s:
+        # -- Specify Job template spec overrides, these are fields under (spec.template.spec)
+        # @section -- Controller
+        jobTemplateSpecOverrides:
+          # -- Specify Active Deadline Seconds override, Job pods running longer than this setting are terminated (default 24 hrs).
+          # @section -- Controller
+          activeDeadlineSeconds: 86400
+        #  imagePullSecrets: []
+        #  affinity: {}
+        #  nodeSelector: {}
+        #  securityContext: {}
+        #  tolerations: []
+
+        # -- Specify Container spec overrides, these are fields under (spec.template.spec.containers)
+        # @section -- Controller
+        containerSpecOverrides:
+          securityContext:
+            runAsUser: 0
+        #  securityContext: {}
+        #  resources: {}
+    # Controller Application Specific Settings/Overrides
+    settings:
+      nv:
+        svc:
+          farm:
+            # -- Available Controller Settings. This section may include templates.
+            # @section -- Controller
+            controller:
+              url_prefix: "{{ .Values.apps.controller.serviceConfig.url_prefix }}"
+              service_host_url_format_str: "{service_host}{{ .Values.apps.controller.serviceConfig.services_base_url }}"
+              reconcile_task_state: false
+              task_reconcile_interval: 3600
+              task_checkin_interval: 10
+              task_checkin_timeout: 3600
+              agent_checkin_interval: 30
+              public_to_private_source_queue_hostnames: {}
+              bay_controller_class: "nv.svc.farm.services.controller.facilities.bays.FileBasedMultiSlotBay"
+              bay_controller_args:
+                capacity_file: "/etc/nvidia/farm/agent/capacity.json"
+              job_store_class: "nv.svc.farm.services.jobs.facilities.store.remote.RemoteJobStore"
+              job_store_args:
+                jobs_load_endpoint: "{{ include \"nv-svc-farm.app.connection-string\" (dict \"svcName\" \"jobs\" \"root\" .root) }}/load"
+              job_manager_class: "nv.svc.farm.services.jobs.facilities.manager.k8s.KubernetesProcessManager"
+              job_manager_args: {}
+            # -- Available Jobs Settings
+            # @section -- Controller
+            jobs:
+              k8s_manager:
+                jobs_namespace: "{{ .Release.Namespace }}"
+                ttl_seconds_after_finished: 600
+                job_template_spec_overrides_file: "/etc/nvidia/farm/job-spec/job_template_spec_overrides.json"
+                container_spec_overrides_file: "/etc/nvidia/farm/container-spec/container_spec_overrides.json"
+                log_upload_endpoint: |-
+                  {{ include "nv-svc-farm.app.connection-string" (dict "svcName" "logs" "root" .root) }}/upload
+              agent_controller_protocol: "{{ .svc.service.targetPortName }}"
+              agent_controller_host: |-
+                {{ include "nv-svc-farm.app.connection-host" (dict "svcName" "controller" "root" .root) }}
+              agent_controller_port: |-
+                {{ include "nv-svc-farm.app.port" (dict "svcName" "controller" "root" .root) }}
+  # DAG Application Specific Settings / Overrides
+  dag:
+    # -- Enable DAG Service
+    # @section -- DAG
+    enabled: true
+    # -- Create DAG Secret - See /templates/dag/secret-dag-mysql.yaml
+    # @section -- DAG
+    secret:
+      create: true
+    # -- Configuration for DAG, not directly an Application setting, should not be a template
+    # @section -- DAG
+    serviceConfig:
+      # -- URL Prefix for DAG API, used by template in apps.dag.settings.nv.svc.farm.dag.url_prefix
+      # @section -- DAG
+      url_prefix: "/queue/management/dag"
+    initImage:
+      # -- List of Applications this service should wait for before starting (dependencies). If object contains name, port, host keys the string may include a template.
+      # @section -- DAG
+      waitForServices:
+      - name: mysql
+        port: "{{ .Values.external.mysql.port }}"
+        host: "{{ include \"nv-svc-farm.mysql.host\" (dict \"Values\" .Values \"Release\" .Release \"root\" .root ) }}"
+    # -- Additional Init Containers to add to deployment of DAG Application (dependencies)
+    # @section -- DAG
+    additionalInitContainerTemplates: []
+    # -- Extra Environment Variables to add to DAG Deployment
+    # @section -- DAG
+    extraEnvTemplates:
+    - "nv-svc-farm.mysql.env-secret"
+    # -- DAG Application Specific Settings/Overrides
+    # @section -- DAG
+    settings:
+      nv:
+        svc:
+          farm:
+            # -- Available DAG Settings. This section may include templates.
+            # @section -- DAG
+            dag:
+              url_prefix: "{{ .Values.apps.dag.serviceConfig.url_prefix }}"
+              task_service_url: "{{ include \"nv-svc-farm.app.connection-string\" (dict \"svcName\" \"tasks\" \"root\" .root) }}"
+              store_class: "nv.svc.farm.services.dag.facilities.dag_store.DagDatabaseBackend"
+              database:
+                connection_string: "{{- if .root.Values.external.mysql.enabled }}{{ include \"nv-svc-farm.mysql.connection_string\" . }}{{- else -}}{{- print \"sqlite:////tmp/dag-management.db\" -}}{{- end }}"
+  # Agents Specific Settings / Overrides
+  agents:
+    # -- Enable Agents Service
+    # @section -- Agents
+    enabled: true
+    initImage:
+      # -- List of Applications this service should wait for before starting (dependencies). If object contains name, port, host keys the string may include a template.
+      # @section -- Agents
+      waitForServices:
+      - tasks
+      - name: redis
+        port: "{{ .Values.external.redis.port }}"
+        host: |-
+          {{ include "redis.host" . }}
+    # -- Configuration for Application, not directly an Application setting, should not be a template
+    # @section -- Agents
+    serviceConfig:
+      # -- URL Prefix for Controller API, used by template in apps.controller.settings.nv.svc.farm.agents.url_prefix
+      # @section -- Agents
+      url_prefix: "/queue/management/agents"
+      # -- Map of Available Manager Classes, used in Settings template to determined which should be used automatically. See apps.agents.settings.nv.svc.farm.agents.[manager_args/manager_class]
+      # @section -- Agents
+      manager_class_selector:
+        redis:
+          class: "nv.svc.farm.services.agents.facilities.managers.redis.RedisAgentManager"
+        default:
+          class: "nv.svc.farm.services.agents.facilities.managers.memory.DictAgentManager"
+    # -- The Agents service has no current secret to create
+    # @section -- Agents
+    secret:
+      create: false
+    # Agents Application Specific Settings/Overrides
+    settings:
+      nv:
+        svc:
+          farm:
+            # -- Available Agents Settings. This section may include templates.
+            # @section -- Agents
+            agents:
+              url_prefix: "{{ .Values.apps.agents.serviceConfig.url_prefix }}"
+              farm_tasks_address: |-
+                {{ include "nv-svc-farm.app.connection-string" (dict "svcName" "tasks" "root" .root) }}
+              lost_timeout: 300
+              check_interval: 120
+              manager_class: "{{- if .root.Values.external.redis.enabled }}{{ .svc.serviceConfig.manager_class_selector.redis.class }}{{- else -}}{{ .svc.serviceConfig.manager_class_selector.default.class }}{{- end }}"
+              manager_args:
+                connection_string: "{{- if .root.Values.external.redis.enabled }}{{ include \"redis.connection_string\" . }}{{- end }}"
+  # Task Application Specific Settings / Overrides
+  tasks:
+    # -- Enable Tasks Service
+    # @section -- Tasks
+    enabled: true
+    # -- Create Tasks Secret - See /templates/tasks/secret-tasks-mysql.yaml
+    # @section -- Tasks
+    secret:
+      create: true
+    # -- Additional Checksums to add to Deployment, causes rollout on change.
+    # @section -- Tasks
+    configMapChecksumTemplate: "nv-svc-farm.tasks.checksums"
+    initImage:
+    # -- List of Applications this service should wait for before starting (dependencies). If object contains name, port, host keys the string may include a template.
+    # @section -- Tasks
+      waitForServices:
+      - name: mysql
+        port: "{{ .Values.external.mysql.port }}"
+        host: "{{ include \"nv-svc-farm.mysql.host\" (dict \"Values\" .Values \"Release\" .Release \"root\" .root ) }}"
+    # -- Additional Init Containers to add to deployment of Tasks Application (dependencies)
+    # @section -- Tasks
+    additionalInitContainerTemplates:
+    - "nv-svc-farm.mysql.init"
+    # -- Extra volumes to be attached to Agents Deployment
+    # @section -- Tasks
+    extraVolumes:
+      - name: migrations
+        configMap:
+          name: "{{ .Release.Name }}-migrations"
+          defaultMode: 504
+    # -- Extra Environment Varialbes to add to Agents Deployment
+    # @section -- Tasks
+    extraEnvTemplates:
+    - "nv-svc-farm.mysql.env-secret"
+    # -- Configuration for Tasks, not directly an Application setting, should not be a template
+    # @section -- Tasks
+    serviceConfig:
+      # -- Skip DB migration on upgrade/deployment
+      # @section -- Tasks
+      skip_db_migrations: false
+      # -- URL Prefix for Tasks API, used by template in apps.tasks.settings.nv.svc.farm.controller.url_prefix
+      # @section -- Tasks
+      url_prefix: "/queue/management/tasks"
+    # -- Tasks Application Specific Settings/Overrides
+    # @section -- Tasks
+    settings:
+      nv:
+        svc:
+          farm:
+            # -- Available Task Settings. This section may include templates.
+            # @section -- Tasks
+            tasks:
+              url_prefix: "{{ .Values.apps.tasks.serviceConfig.url_prefix }}"
+              metrics_collect_interval: 60
+              dag_service_url: "{{ include \"nv-svc-farm.app.connection-string\" (dict \"svcName\" \"dag\" \"root\" .root) }}"
+              event_handlers:
+                - "nv.svc.farm.services.tasks.facilities.task_events.status.TaskStatusEventHandler"
+                - "nv.svc.farm.services.dag.facilities.task_events.DAGTaskEventHandler"
+              event_handler_args:
+                TaskStatusEventHandler:
+                  retries_service_url: "{{ include \"nv-svc-farm.app.connection-string\" (dict \"svcName\" \"retries\" \"root\" .root) }}"
+                DAGTaskEventHandler:
+                  dag_service_url: "{{ include \"nv-svc-farm.app.connection-string\" (dict \"svcName\" \"dag\" \"root\" .root) }}"
+              dbs:
+                task-persistence:
+                  connection_string: "{{- if .root.Values.external.mysql.enabled }}{{ include \"nv-svc-farm.mysql.connection_string\" . }}{{- else -}}{{- print \"sqlite:////tmp/task-management.db\" -}}{{- end }}"
+  # Job Application Specific Settings / Overrides
+  jobs:
+    # -- Enable Jobs Service
+    # @section -- Jobs
+    enabled: true
+    initImage:
+      # -- List of Applications this service should wait for before starting (dependencies).
+      # @section -- Jobs
+      waitForServices:
+      - name: redis
+        port: "{{ $.Values.external.redis.port }}"
+        host: |-
+          {{ include "redis.host" $ }}
+    service:
+      name: jobs
+    # -- Create Job Application Secret. See /templates/jobs/secret-api-key.yaml
+    # @section -- Jobs
+    secret:
+      name: "jobs"
+      create: true
+    # -- Extra volume mount templates to add to Application container/deployment
+    # @section -- Jobs
+    extraVolumeMountTemplates:
+    - "jobs.volume.mounts"
+    # -- Extra volume templates to add to Deployment
+    # @section -- Jobs
+    extraVolumeTemplates:
+    - "jobs.volumes"
+    # -- Extra Environment variables to add to Application Container. May include templates.
+    # @section -- Jobs
+    extraEnv:
+    - name: JOBS_API_KEY
+      valueFrom:
+        secretKeyRef:
+          name: |-
+            {{ include "nv-svc-farm.app.fullname" (dict "svcName" "jobs" "Values" .Values "Release" .Release "root" .root ) }}
+          key: api_key
+    # -- Configuration for Application, not directly an Application setting, should not be a template
+    # @section -- Jobs
+    serviceConfig:
+      url_prefix: "/queue/management/jobs"
+      # -- Direct API key to use
+      api_key: ""
+      # -- Map of Available Store Classes, used in Settings template to determined which should be used automatically. See apps.jobs.settings.nv.svc.farm.jobs.[store_args/store_class]
+      # @section -- Jobs
+      store_selector:
+        redis:
+          class: "nv.svc.farm.services.jobs.facilities.store.redis.RedisJobStore"
+        default:
+          class: "nv.svc.farm.services.jobs.facilities.store.directory.DirectoryJobStore"
+      # -- Deploy helm hook to load job definitions on startup. See /templates/jobs/job-definition-loader.yaml
+      # @section -- Jobs
+      load_default_job_definitions: false
+      # -- List of Job definitions to load. See
+      # @section -- Jobs
+      definitions:
+      - df
+      - nvidia-smi-check
+    # Jobs Application Specific Settings/Overrides
+    # @section -- Jobs
+    settings:
+      nv:
+        svc:
+          farm:
+            # -- Available Jobs Settings. This section may include templates.
+            # @section -- Jobs
+            jobs:
+              url_prefix: "{{- .Values.apps.jobs.serviceConfig.url_prefix -}}"
+              # This should always be set to the environment variable injected by the secret
+              api_key: "@format {env[JOBS_API_KEY]}"
+              supported_instance_payload_versions: []
+              farm_facilities_extensions: []
+              agent_controller_protocol: "http"
+              agent_controller_host: |-
+                {{ include "nv-svc-farm.app.connection-host" (dict "svcName" "controller" "root" .root) }}
+              agent_controller_port: |-
+                {{ include "nv-svc-farm.app.port" (dict "svcName" "controller" "root" .root) }}
+              store_class: "{{- if .root.Values.external.redis.enabled }}{{ .svc.serviceConfig.store_selector.redis.class }}{{- else -}}{{ .svc.serviceConfig.store_selector.default.class }}{{- end }}"
+              store_args:
+                connection_string: "{{- if .root.Values.external.redis.enabled }}{{ include \"redis.connection_string\" . }}{{- end }}"
+  # Dashboard Specific Settings / Overrides
+  dashboard:
+    # -- Enable Dashboard Service
+    # @section -- Dashboard
+    enabled: true
+    initImage:
+      # -- List of Applications this service should wait for before starting (dependencies). If object contains name, port, host keys the string may include a template.
+      # @section -- Dashboard
+      waitForServices:
+      - tasks
+    # Configuration for Application, not directly an Application setting, should not be a template
+    serviceConfig:
+      # -- URL Prefix for Controller API, used by template in apps.dashboard.settings.nv.svc.farm.dashboard.url_prefix
+      # @section -- Dashboard
+      url_prefix: "/queue/management/dashboard"
+    # Dashboard Application Specific Settings/Overrides
+    settings:
+      nv:
+        svc:
+          farm:
+            # -- Available Dashboard Settings. This section may include templates.
+            # @section -- Dashboard
+            dashboard:
+              url_prefix: "{{ .Values.apps.dashboard.serviceConfig.url_prefix }}"
+              farm_tasks_address: |-
+                {{ include "nv-svc-farm.app.connection-string" (dict "svcName" "tasks" "root" .root) }}
+              build_dir: ""
+  # Log Application Specific Settings / Overrides
+  logs:
+    # -- Enable Logs Service
+    # @section -- Logs
+    enabled: true
+    # -- Configuration for Application, not directly an Application setting, should not be a template
+    # @section -- Logs
+    serviceConfig:
+      # -- URL Prefix for Logs API, used by template in apps.logs.settings.nv.svc.farm.logs.url_prefix
+      # @section -- Logs
+      url_prefix: "/queue/management/logs"
+    # Logs Application Specific Settings/Overrides
+    settings:
+      nv:
+        svc:
+          farm:
+            # -- Available Logs Settings. This section may include templates.
+            # @section -- Logs
+            logs:
+              url_prefix: "{{ .Values.apps.logs.serviceConfig.url_prefix }}"
+              store_class: "nv.svc.farm.services.logs.facilities.memory.MemoryLogStore"
+              store_args: {}
+  # Agents Specific Settings / Overrides
+  retries:
+     # -- Enable Retries Service
+     # @section -- Retries
+    enabled: true
+    initImage:
+      # -- List of Applications this service should wait for before starting (dependencies). If object contains name, port, host keys the string may include a template.
+      # @section -- Retries
+      waitForServices:
+      - tasks
+    # -- Configuration for Application, not directly an Application setting, should not be a template
+    # @section -- Retries
+    serviceConfig:
+      # -- URL Prefix for Retries API, used by template in apps.retries.settings.nv.svc.farm.retries.url_prefix
+      # @section -- Retries
+      url_prefix: "/queue/management/retries"
+    # Retries Application Specific Settings/Overrides
+    settings:
+      nv:
+        svc:
+          farm:
+            # -- Available Retries Settings. This section may include templates.
+            # @section -- Retries
+            retries:
+              url_prefix: "{{ .Values.apps.retries.serviceConfig.url_prefix }}"
+              farm_tasks_address: "{{ include \"nv-svc-farm.app.connection-string\" (dict \"svcName\" \"tasks\" \"root\" .root) }}"
+  # Settings Application Specific Settings / Overrides
+  settings:
+    # -- Enable Settings Service
+    # @section -- Settings
+    enabled: true
+    # -- Configuration for Application, not directly an Application setting, should not be a template
+    # @section -- Settings
+    serviceConfig:
+      # -- URL Prefix for Controller API, used by template in apps.settings.settings.nv.svc.farm.settings.url_prefix
+      # @section -- Settings
+      url_prefix: "/queue"
+    # Settings Application Specific Settings/Overrides
+    settings:
+      nv:
+        svc:
+          farm:
+            # -- Available Settings Service Settings. This section may include templates.
+            # @section -- Settings
+            settings:
+              url_prefix: "{{ .Values.apps.settings.serviceConfig.url_prefix }}"
+              exposed_settings:
+                advanced_rendering_features: {}
+  # Results Specific Settings / Overrides
+  results:
+    # -- Enable Results Service
+    # @section -- Results
+    enabled: true
+    initImage:
+      # -- List of Applications this service should wait for before starting (dependencies). If object contains name, port, host keys the string may include a template.
+      # @section -- Results
+      waitForServices:
+      - tasks  # Add dependency on tasks service
+      - name: redis
+        port: "{{ .Values.external.redis.port }}"
+        host: |-
+          {{ include "redis.host" . }}
+    # -- Configuration for Application, not directly an Application setting, should not be a template
+    # @section -- Results
+    serviceConfig:
+      # -- URL Prefix for Results API
+      # @section -- Results
+      url_prefix: "/queue/management/results"
+      # -- Map of Available Manager Classes, used in Settings template to determine which should be used automatically. See apps.results.settings.nv.svc.farm.results.[manager_args/manager_class]
+      # @section -- Results
+      manager_class_selector:
+        redis:
+          class: "nv.svc.farm.services.results.facilities.managers.redis.RedisResultManager"
+        default:
+          class: "nv.svc.farm.services.results.facilities.managers.memory.DictResultManager"
+    # -- The Results service has no current secret to create
+    # @section -- Results
+    secret:
+      create: false
+    # Results Application Specific Settings/Overrides
+    settings:
+      nv:
+        svc:
+          farm:
+            # -- Available Results Settings. This section may include templates.
+            # @section -- Results
+            results:
+              url_prefix: "{{ .Values.apps.results.serviceConfig.url_prefix }}"
+              task_service_url: "{{ include \"nv-svc-farm.app.connection-string\" (dict \"svcName\" \"tasks\" \"root\" .root) }}"
+              result_ttl: 432000  # 5 days in seconds
+              manager_class: "{{- if .root.Values.external.redis.enabled }}{{ .svc.serviceConfig.manager_class_selector.redis.class }}{{- else -}}{{ .svc.serviceConfig.manager_class_selector.default.class }}{{- end }}"
+              manager_args:
+                connection_string: "{{- if .root.Values.external.redis.enabled }}{{ include \"redis.connection_string\" . }}{{- end }}"
+                result_ttl: 432000  # 5 days in seconds
+  # This service has been deprecated and is here for completeness, disabled
+  operator:
+    enabled: false
+    serviceConfig:
+      url_prefix: "/agent/operator"
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+redis_host_override: ""
+# Defaults - Sane defaults for any Application. Do not override this section, instead override the same values but inside apps.[service-name]
+defaults:
+  image:
+    # -- Image Repository
+    # @section -- Defaults
+    repository: ""
+    # -- Image pull policy.
+    # @section -- Defaults
+    pullPolicy: IfNotPresent
+    # -- Image tag, overrides the image tag whose default is the chart appVersion.
+    # @section -- Defaults
+    tag: ""
+    # -- Image Command
+    # @section -- Defaults
+    cmd: ["python", "-m", "nv.svc.farm.services.{{ .svcName }}.entrypoint"]
+    # -- Image Args
+    # @section -- Defaults
+    args: []
+  initImage:
+    # -- Init image repository. Must have netcat installed.
+    # @section -- Defaults
+    repository: "busybox"
+    # -- Init image tag.
+    # @section -- Defaults
+    tag: "1.35"
+    # -- List of Applications this service should wait for before starting (dependencies). If object contains name, port, host keys the string may include a template.
+    # @section -- Defaults
+    waitForServices: []
+    # -- Init Image resources, limits/reqs/etc
+    # @section -- Defaults
+    resources: {}
+    # -- Init Image Security Context
+    # @section -- Defaults
+    securityContext: {}
+  serviceMonitor:
+    # -- Enable rendering of service monitor
+    # @section -- Defaults
+    enabled: false
+    # -- Sets prometheus namespace label
+    # @section -- Defaults
+    prometheusNamespace: ""
+    # -- Extra labels to add to service monitor
+    # @section -- Defaults
+    extraLabels:
+      release: prometheus
+  ingress:
+    # -- Enable rendering and application of ingress objects
+    # @section -- Defaults
+    enabled: false
+    # -- Enable service-specific host routes like <svc>.BASE -> /
+    # @section -- Defaults
+    enableServiceHostRoutes: false
+    # -- Ingress host to route on
+    # @section -- Defaults
+    host: ""
+    # -- Ingress class to use (this determines which ingress controller should be responsible for it).
+    # -- Leave empty to use cluster default, or specify your ingress controller class (e.g., "nginx", "traefik", "haproxy").
+    # @section -- Defaults
+    ingressClassName: ""
+    # -- Path to route
+    # @section -- Defaults
+    path: ""
+    # -- Route type
+    # @section -- Defaults
+    pathType: Prefix
+    # -- Tls configuration
+    # @section -- Defaults
+    tls: []
+  service:
+    # -- Type
+    # @section -- Defaults
+    type: ClusterIP
+    # -- Port.
+    # @section -- Defaults
+    port: 80
+    # -- Protocol
+    # @section -- Defaults
+    protocol: TCP
+    # -- Target Container port name.
+    # @section -- Defaults
+    targetPortName: http
+    # -- Annotations
+    # @section -- Defaults
+    annotations: {}
+    # -- Extra Labels
+    # @section -- Defaults
+    extraLabels: {}
+    # -- Transport host for service (the host the application is listening on). Usually is 0.0.0.0 in containers.
+    # @section -- Defaults
+    transportHost: 0.0.0.0
+    # -- ContainerPort to forward traffic from Kubernetes Service into pod container
+    # @section -- Defaults
+    containerPort: 8011
+  # -- Create a secret, if available for the target Application
+  # @section -- Defaults
+  secret:
+    create: false
+    name: "" # defaults to service name (release.name-app or following name overrides)
+  # -- Liveness, Readiness and Startup Probes for Applications
+  # @section -- Defaults
+  probes:
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: http
+      initialDelaySeconds: 30
+      periodSeconds: 5
+      failureThreshold: 5
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: http
+      initialDelaySeconds: 30
+      periodSeconds: 5
+      failureThreshold: 5
+    startupProbe:
+      httpGet:
+        path: /startup
+        port: http
+      initialDelaySeconds: 30
+      periodSeconds: 5
+      failureThreshold: 5
+  # -- Environment Variables to add to Application Deployment/Container
+  # @section -- Defaults
+  env:
+  - name: "NV__SVC__GLOBAL__CONFIG_FILEPATH"
+    value: "/configs/application.yaml"
+  - name: OTEL_SERVICE_NAME
+    value: nv.svc.farm-{{ .svcName }}
+  - name: OTEL_EXPORTER_OTLP_METRICS_PROTOCOL
+    value: http/protobuf
+  - name: CORE_LOADERS_FOR_DYNACONF
+    value: '["TOML", "YAML"]'
+  role:
+    # -- Roles name to use, ServiceAccount name will be used if empty
+    # @section -- Defaults
+    name: ""
+    # -- Create this role, if required for the Application
+    # @section -- Defaults
+    create: false
+    # -- ServiceAccount name this role should bind to
+    # @section -- Defaults
+    bindingServiceAccountName: "" # will attach to charts service account if empty
+    # -- List of role permissions
+    # @section -- Defaults
+    rules: []
+  # -- Extra Environment variables to add to Application Container. May include templates.
+  extraEnv: []
+  # -- Extra Environment Varialbes template functions to render and add to Application Deployment
+  extraEnvTemplates: []
+  # -- Volume mounts to add to container/deployment
+  volumeMounts:
+  - name: service-config
+    mountPath: /configs
+  # -- Extra volume mounts to add to container/deployment, excluding configuration configmap (automatic)
+  extraVolumeMounts: []
+  # -- Extra volume mount templates to add to Application container/deployment
+  # @section -- Defaults
+  extraVolumeMountTemplates: []
+  # -- Volumes to add to Application Deployment/container
+  # @section -- Defaults
+  volumes:
+  - name: service-config
+    configMap:
+      name: "{{ include \"nv-svc-farm.app.fullname\" . }}-config"
+  # -- Extra volumes to be attached to Deployment
+  # @section -- Defaults
+  extraVolumes: []
+  # -- Extra volume templates to render and add to Deployment
+  extraVolumeTemplates: []
+  # -- Configuration for Application, not directly an Application setting, should not be a template
+  # @section -- Defaults
+  serviceConfig:
+    url_prefix: ""
+  settings:
+    nv:
+      svc:
+        core:
+          # -- Available Core Settings.
+          # @section -- Defaults
+          root_path: ""
+          logging:
+            log_level: "INFO"
+        server:
+          # -- Available HTTP Server Settings
+          # @section -- Defaults
+          http:
+            host: "{{ .svc.service.transportHost }}"
+            port: "{{ .svc.service.containerPort }}"
+            cors:
+              enabled: false
+              allow_origins: []
+              allow_credentials: false
+              allow_methods: []
+              allow_headers: []
+            loop: uvloop
+            http:
+              enabled: true
+        facilities:
+          monitoring:
+            # -- Available Monitoring Facility Settings
+            # @section -- Defaults
+            metrics:
+              export_metrics_to_collector: false
+              export_metrics_to_console: false
+              collector_url: ""
+              secure: false
+              mount_metrics_endpoint_separate_http_server: true
+              export_interval_s: 30
+              separate_http_server_port: 8002
+        kubernetes:
+          # -- Available Kubernetes Client Settings
+          # @section -- Defaults
+          client:
+            load_in_cluster_config: true
+            verify_ssl: true
+            kube_config_path: ""
+            kube_config_context: ""
+  # -- Additional templates to render and add as an init container to the target deployment
+  # @section -- Defaults
+  additionalInitContainerTemplates: []
+  # -- Configmap checksum template to use and attach to deployment
+  # @section -- Defaults
+  configMapChecksumTemplate: ""
+  serviceAccount:
+    # -- Specifies whether a service account should be created
+    # @section -- Defaults
+    create: true
+    # -- Annotations to add to the service account
+    # @section -- Defaults
+    annotations: {}
+    # -- The name of the service account to use. If not set and create is true, a name is generated using the fullname template
+    # @section -- Defaults
+    name: ""
+  # -- Replica count to use for target service
+  # @section -- Defaults
+  replicaCount: 1
+  # -- Node Selector to attach to Application Deployment Spec
+  # @section -- Defaults
+  nodeSelector: {}
+  # -- Tolerations to attach to Application Deployment Spec
+  # @section -- Defaults
+  tolerations: []
+  # -- Affinity to attach to Application Deployment Spec
+  # @section -- Defaults
+  affinity: {}
+  # -- Image pull secrets to attach to target serviceaccount
+  # @section -- Defaults
+  imagePullSecrets: []
+  # -- Name Override for Application
+  # @section -- Defaults
+  nameOverride: ""
+  # -- Full Name Override for Application
+  # @section -- Defaults
+  fullnameOverride: ""
+  # -- Pod Annotations to add to Pods created by the target K8s Deployment
+  # @section -- Defaults
+  podAnnotations: {}
+  # -- Pod Labels to add to Pods created by the target K8s Deployment
+  # @section -- Defaults
+  podLabels:
+    kratos_logging: "true"
+    kratos_metrics: "true"
+  # -- The amount of prior Deployment objects to maintain in history
+  # @section -- Defaults
+  revisionHistoryLimit: 5
+  # -- Pod Security Context
+  # @section -- Defaults
+  podSecurityContext: {}
+  # -- Deployment Security Context
+  # @section -- Defaults
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+  # -- Autoscaling has not been tested or used
+  # @section -- Defaults
+  autoscaling:
+    enabled: false
+  # -- Resources to attach to target Deployment/container
+  # @section -- Defaults
+  resources: {}

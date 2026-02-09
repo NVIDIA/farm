@@ -1,0 +1,19 @@
+{
+    "python.analysis.extraPaths":  [
+        ".tox/py312/lib/python3.12/site-packages"
+    ],
+    "python.defaultInterpreterPath": ".tox/py312/bin/python",
+    "flake8.args": [
+        "--max-line-length=160"
+    ],
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "coverage-gutters.coverageFileNames": [
+        "coverage.lcov",
+    ],
+    "coverage-gutters.showLineCoverage": true,
+    "makefile.configureOnOpen": false
+}

@@ -1,0 +1,5 @@
+[settings.test]
+bool = true
+int = 13
+string = "lorem ipsum"
+transient_value = 17

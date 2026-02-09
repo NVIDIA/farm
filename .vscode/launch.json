@@ -1,0 +1,94 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "name": "Python: Capacity Service",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/nv/svc/farm/services/capacity/entrypoint.py",
+            "justMyCode": false
+        },
+        {
+            "name": "Python: Agents Service",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/nv/svc/farm/services/agents/entrypoint.py",
+            "justMyCode": false
+        },
+        {
+            "name": "Python: Controller Service",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/nv/svc/farm/services/controller/entrypoint.py",
+            "justMyCode": false,
+            "env": {
+                "OMNI_KIT_ALLOW_ROOT": "1"
+            }
+        },
+        {
+            "name": "Python: Dashboard Service",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/nv/svc/farm/services/dashboard/entrypoint.py",
+            "justMyCode": false
+        },
+        {
+            "name": "Python: Jobs Service",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/nv/svc/farm/services/jobs/entrypoint.py",
+            "justMyCode": false
+        },
+        {
+            "name": "Python: Logs Service",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/nv/svc/farm/services/logs/entrypoint.py",
+            "justMyCode": false
+        },
+        {
+            "name": "Python: Retries Service",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/nv/svc/farm/services/retries/entrypoint.py",
+            "justMyCode": false
+        },
+        {
+            "name": "Python: Settings Service",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/nv/svc/farm/services/settings/entrypoint.py",
+            "justMyCode": false
+        },
+        {
+            "name": "Python: Tasks Service",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/nv/svc/farm/services/tasks/entrypoint.py",
+            "justMyCode": false
+        },
+        {
+            "name": "Python: Attach using Process Id",
+            "type": "debugpy",
+            "request": "attach",
+            "processId": "${command:pickProcess}",
+            "justMyCode": false
+        },
+        {
+            "name": "Python: Debug Tests",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "purpose": ["debug-test"],
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "presentation": {
+                "hidden": true, // keep original launch order in 'run and debug' tab
+            }
+        },
+    ]
+}

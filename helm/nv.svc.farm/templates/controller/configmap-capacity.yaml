@@ -1,0 +1,14 @@
+{{- if .Values.apps.controller.enabled -}}
+{{- $svc := mergeOverwrite (deepCopy $.Values.defaults) (deepCopy $.Values.global) (deepCopy $.Values.apps.controller) -}}
+{{- $containerSpecOverrides := $svc.serviceConfig.k8s.containerSpecOverrides -}}
+{{- $ctx := (dict "svcName" "controller" "svc" $svc "root" $) -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ .Release.Name }}-capacity"
+  labels:
+    {{- include "nv-svc-farm.app.labels" $ctx | nindent 4 }}
+data:
+  capacity.json: |-
+        {{ toPrettyJson $svc.serviceConfig.capacity | nindent 8 }}
+{{- end }}

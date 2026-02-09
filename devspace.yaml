@@ -1,0 +1,525 @@
+version: v2beta1
+name: farm
+
+vars:
+  DEVSPACE_ENV_FILE: "devspace.env"
+  PACKAGE_NAME: "nv.svc.farm"
+  APP_NAME: "farm"
+  IMAGE: farm
+  SOURCE_CODE_RELATIVE_LOCATION:
+    question: "Where is the root of the repository located relative to your devspace.yaml?"
+    default: "."
+  ENABLE_VSCODE_REMOTE:
+    question: "Should DevSpace configure the target container with VSCode Server and Connect to it?"
+    default: "false"
+  DEPLOYMENT_LOG_LEVEL: "Info"
+  REMOTE_WORKING_DIR: "/workspace"
+  DEVSPACE_PROFILE_DIR: "${SOURCE_CODE_RELATIVE_LOCATION}/helm/${PACKAGE_NAME}/internal/devspace/"
+# This is a list of `pipelines` that DevSpace can execute (you can define your own)
+pipelines:
+  # This is the pipeline for the main command: `devspace dev` (or `devspace run-pipeline dev`)
+  dev:
+    run: |-
+      ensure_pull_secrets --all       # 1. Ensure pull secrets
+
+      run_pipelines databases         # 2. Deploy MySQL and Redis
+
+      $(is_in "debian" "${DEVSPACE_PROFILES}" && echo "build_images farm-dev farm-debian" || echo "build_images farm-dev")
+      $(is_in "local" "${DEVSPACE_PROFILES}" && echo "build_images farm-dev farm-local" || echo "build_images farm-dev")
+      $(is_in "obs" "${DEVSPACE_PROFILES}" && echo "run_pipelines mesh" || echo "create_deployments farm")
+      $(is_in "nvct-mock" "${DEVSPACE_PROFILES}" && echo "run_pipelines nvct-mock" || echo "")
+      $(is_in "nvcf-mock" "${DEVSPACE_PROFILES}" && echo "run_pipelines nvcf-mock" || echo "")
+
+      start_dev farm                  # 3. Start dev mode "app" (see "dev" section)
+
+      if [ ${ENABLE_VSCODE_REMOTE} == "true" ]; then
+        echo "code --folder-uri vscode-remote://ssh-remote+farm.devspace${REMOTE_WORKING_DIR}"
+      else
+        echo ""
+      fi
+
+  deploy:
+    run: |-
+      ensure_pull_secrets --all
+
+      run_pipelines databases         # Deploy MySQL and Redis
+
+      $(is_in "debian" "${DEVSPACE_PROFILES}" && echo "build_images farm-debian" || echo "")
+      $(is_in "local" "${DEVSPACE_PROFILES}" && echo "build_images farm-local" || echo "")
+      $(is_in "obs" "${DEVSPACE_PROFILES}" && echo "run_pipelines mesh" || echo "")
+      $(is_in "nvct-mock" "${DEVSPACE_PROFILES}" && echo "run_pipelines nvct-mock" || echo "")
+      $(is_in "nvcf-mock" "${DEVSPACE_PROFILES}" && echo "run_pipelines nvcf-mock" || echo "")
+
+      create_deployments farm
+      
+  build:
+    run: |
+      build_images --all
+  build-debian:
+    run: |
+      build_images farm-debian
+  build-dev:
+    run: |
+      build_images farm-dev
+  build-local:
+    run: |
+      build_images farm-local
+  build-distroless:
+    run: |
+      build_images farm
+  build-nvct-mock:
+    run: |
+      build_images nvct-mock
+  build-nvcf-mock:
+    run: |
+      build_images nvcf-mock
+  mesh:
+    run: |
+      create_deployments istio-base
+      create_deployments istiod
+      create_deployments istio-gateway
+      create_deployments istio-ingress-gateways
+      create_deployments prometheus
+      create_deployments grafana
+      create_deployments tracing
+      create_deployments kiali
+      create_deployments istio-farm-gateway
+      create_deployments istio-farm-ns-patch
+      create_deployments farm
+  nvct-mock:
+    run: |
+      build_images nvct-mock
+      create_deployments nvct-mock farm
+  nvcf-mock:
+    run: |
+      build_images nvcf-mock
+      create_deployments nvcf-mock farm
+  databases:
+    run: |
+      create_deployments mysql
+      create_deployments redis
+  wordctl:
+    run: |- 
+      build_images wordctl -t dev
+# This is a list of `deployments` that DevSpace can create for this project
+deployments:
+  # MySQL deployment for local development
+  mysql:
+    helm:
+      chart:
+        name: mysql
+        repo: https://charts.bitnami.com/bitnami
+        version: "9.10.1"
+      valuesFiles:
+        - ./helm/${PACKAGE_NAME}/internal/devspace/mysql-values.yaml
+
+  # Redis deployment for local development
+  redis:
+    helm:
+      chart:
+        name: redis
+        repo: https://charts.bitnami.com/bitnami
+        version: "17.11.3"
+      valuesFiles:
+        - ./helm/${PACKAGE_NAME}/internal/devspace/redis-values.yaml
+
+  # Farm application deployment
+  farm:
+    updateImageTags: false
+    helm:
+      disableDependencyUpdate: true
+      chart:
+        name: ./helm/${PACKAGE_NAME}
+      valuesFiles:
+      - ./helm/${PACKAGE_NAME}/internal/devspace/devspace-values.yaml
+      values:
+        global:
+          imagePullSecrets:
+          - devspace-pull-secrets
+  nvct-mock:
+    helm:
+      chart:
+        name: component-chart
+        repo: https://charts.devspace.sh
+      values:
+        containers:
+        - image: ${runtime.images.nvct-mock.image}:${runtime.images.nvct-mock.tag}
+        service:
+          ports:
+          - port: 8877
+        ingress:
+          name: nvct
+          ingressClassName: traefik
+          rules:
+            - host: nvct.127-0-0-1.nip.io
+  nvcf-mock:
+    helm:
+      chart:
+        name: component-chart
+        repo: https://charts.devspace.sh
+      values:
+        containers:
+        - image: ${runtime.images.nvcf-mock.image}:${runtime.images.nvcf-mock.tag}
+        service:
+          ports:
+          - port: 8877
+        ingress:
+          name: nvcf
+          ingressClassName: traefik
+          rules:
+            - host: nvcf.127-0-0-1.nip.io
+
+images:
+  farm:
+    dockerfile: "${SOURCE_CODE_RELATIVE_LOCATION}/Dockerfile"
+    context: "${SOURCE_CODE_RELATIVE_LOCATION}"
+    skipPush: true
+    image: ${IMAGE}
+    rebuildStrategy: default
+  farm-dev:
+    dockerfile: "${SOURCE_CODE_RELATIVE_LOCATION}/Dockerfile-dev"
+    context: "${SOURCE_CODE_RELATIVE_LOCATION}"
+    skipPush: true
+    image: ${IMAGE}-dev
+    rebuildStrategy: default
+  farm-debian:
+    dockerfile: "${SOURCE_CODE_RELATIVE_LOCATION}/Dockerfile-debian"
+    context: "${SOURCE_CODE_RELATIVE_LOCATION}"
+    skipPush: true
+    image: ${IMAGE}-debian
+    rebuildStrategy: default
+  farm-local:
+    dockerfile: "${SOURCE_CODE_RELATIVE_LOCATION}/Dockerfile-local"
+    context: "${SOURCE_CODE_RELATIVE_LOCATION}"
+    skipPush: true
+    image: ${IMAGE}-local
+    rebuildStrategy: default
+  nvct-mock:
+    dockerfile: "${SOURCE_CODE_RELATIVE_LOCATION}/mocks/nvct/Dockerfile"
+    context: "${SOURCE_CODE_RELATIVE_LOCATION}/mocks/nvct"
+    skipPush: true
+    image: nvct-mock
+    rebuildStrategy: default
+  nvcf-mock:
+    dockerfile: "${SOURCE_CODE_RELATIVE_LOCATION}/mocks/nvcf/Dockerfile"
+    context: "${SOURCE_CODE_RELATIVE_LOCATION}/mocks/nvcf"
+    skipPush: true
+    image: nvcf-mock
+    rebuildStrategy: default
+  wordctl:
+    dockerfile: "${SOURCE_CODE_RELATIVE_LOCATION}/user-docs/wordctl/Dockerfile"
+    context: "${SOURCE_CODE_RELATIVE_LOCATION}/user-docs/wordctl"
+    skipPush: true
+    image: wordctl
+    rebuildStrategy: default
+localRegistry:
+  enabled: false
+  localbuild: true
+hooks:
+  - name: "post-purge-farm-hook"
+    command: |
+      echo Removing persistent volumes left-over from deploymet
+      kubectl --context ${DEVSPACE_CONTEXT} -n ${DEVSPACE_NAMESPACE} delete pvc -l app.kubernetes.io/name=farm || true
+      kubectl --context ${DEVSPACE_CONTEXT} -n ${DEVSPACE_NAMESPACE} delete job job-definitions-loader || true
+      kubectl --context ${DEVSPACE_CONTEXT} -n ${DEVSPACE_NAMESPACE} delete jobs --all || true
+    events: ["after:purge:farm"]
+  - name: "post-purge-mysql-hook"
+    command: |
+      echo "Removing MySQL persistent volumes"
+      kubectl --context ${DEVSPACE_CONTEXT} -n ${DEVSPACE_NAMESPACE} delete pvc -l app.kubernetes.io/name=mysql || true
+    events: ["after:purge:mysql"]
+  - name: "post-purge-redis-hook"
+    command: |
+      echo "Removing Redis persistent volumes"
+      kubectl --context ${DEVSPACE_CONTEXT} -n ${DEVSPACE_NAMESPACE} delete pvc -l app.kubernetes.io/name=redis || true
+    events: ["after:purge:redis"]
+  - name: "post-image-build-hook"
+    command: |
+      kind load docker-image wordctl:dev
+    events: ["after:build:wordctl"]
+
+dev:
+  farm:
+    labelSelector:
+      app.kubernetes.io/name: ${DEVSPACE_PROFILE}
+      app.kubernetes.io/instance: farm
+    devImage: ${IMAGE}-dev
+    command: ["sh", "-c", "tail -f /dev/null"]
+    # Sync files between the local filesystem and the development container
+    sync:
+      - path: "${SOURCE_CODE_RELATIVE_LOCATION}/:${REMOTE_WORKING_DIR}/"
+        excludePaths: [".pytest_cache", ".tox", "artifacts", "cache", ".venv", "node_modules"]
+        printLogs: true
+    terminal:
+      command: "/workspace/scripts/devspace_start.sh ${DEVSPACE_PROFILE}"
+    logs: {}
+    ssh:
+      enabled: true
+      localHostname: ${APP_NAME}.devspace
+          # Make the following commands from my local machine available inside the dev container
+    proxyCommands:
+      - command: devspace
+      - command: kubectl
+      - command: helm
+      - command: ${DEVSPACE_PROFILE}-svc
+      - gitCredentials: true
+    patches:
+      - op: replace
+        path: spec.securityContext.runAsUser
+        value: 0
+      - op: replace
+        path: spec.securityContext.allowPrivilegeEscalation
+        value: true
+      - op: replace
+        path: spec.containers[*].securityContext.runAsUser
+        value: 0
+      - op: replace
+        path: spec.containers[*].securityContext.allowPrivilegeEscalation
+        value: true
+      - op: replace
+        path: spec.containers[*].securityContext.runAsNonRoot
+        value: false
+      - op: replace
+        path: spec.containers[0].command
+        value: []
+      - op: replace
+        path: spec.containers[0].args
+        value: ["${DEVSPACE_PROFILE}-svc"]
+
+    # Forward the following ports to be able access your application via localhost
+    ports:
+      - port: 8011:8011 # app server `make start -p svc=[svcname]` or start with vscode launch config
+      - port: 8000:8000 # docs-server `make docs-server`
+      - port: 9000:9000
+    # Open the following URLs once they return an HTTP status code other than 502 or 503
+    open:
+      - url: http://farm.127-0-0-1.nip.io:8080/queue/management/dashboard/
+      - url: http://localhost:8011/docs
+     
+profiles:
+- name: ingress
+  merge: $(cat ${DEVSPACE_PROFILE_DIR}/ingress.yaml)
+- name: controller
+- name: agents
+- name: capacity
+- name: dag
+- name: dashboard
+- name: retries
+- name: results
+- name: settings
+- name: tasks
+- name: logs
+- name: jobs
+# When this profile is provided Istio service mesh is deployed
+- name: obs
+  merge: $(cat ${DEVSPACE_PROFILE_DIR}/istio-manifests/istio-deps.yaml)
+- name: memcached
+  merge: $(cat ${DEVSPACE_PROFILE_DIR}/memcached.yaml)
+# Use latest locally built Debian based image (devspace run build-debian)
+- name: debian
+  merge: $(cat ${DEVSPACE_PROFILE_DIR}/debian.yaml)
+# Use latest locally built local (fast-dev) image (devspace run build-local)
+- name: local
+  merge: $(cat ${DEVSPACE_PROFILE_DIR}/local.yaml)
+# Use latest locally built distroless based image (devspace run build-distroless)
+- name: distroless
+  merge: $(cat ${DEVSPACE_PROFILE_DIR}/distroless.yaml)
+- name: nvct-mock
+  merge: $(cat ${DEVSPACE_PROFILE_DIR}/nvct-mock.yaml)
+- name: nvcf-mock
+  merge: $(cat ${DEVSPACE_PROFILE_DIR}/nvcf-mock.yaml)
+- name: redis-ha-cluster
+  merge: $(cat ${DEVSPACE_PROFILE_DIR}/redis-ha-cluster.yaml)
+- name: tracing
+
+
+# Use the `commands` section to define repeatable dev workflows for this project
+commands:
+  start:
+    section: app
+    command: bash
+    description: Start application
+    args: ["-c", "make start run svc=$!{DEVSPACE_PROFILE}"]
+  smoketest:
+    section: farm
+    command: bash
+    description: Run Farm Smoke Test
+    args:
+    - -c
+    - ./${DEVSPACE_PROFILE_DIR}smoke-test.sh
+  import-images:
+    section: farm
+    command: bash
+    description: Download and import required images for faster bringup times
+    args:
+    - -c
+    - ./${DEVSPACE_PROFILE_DIR}import.sh
+  open-dashboard:
+    section: farm
+    command: bash
+    description: Open Farm Dashboard in browser
+    args:
+    - -c
+    - xdg-open http://farm.127-0-0-1.nip.io:8080/queue/management/dashboard/
+  open-all-links:
+    section: farm
+    command: bash
+    description: Open all farm related links, including observability
+    args:
+    - -c
+    - ./${DEVSPACE_PROFILE_DIR}open-links.sh
+  build-debian:
+    section: images
+    command: bash
+    description: Build Farm Debian image
+    args:
+    - -c
+    - devspace run-pipeline build-debian
+  build-local:
+    section: images
+    command: bash
+    description: Build Farm local (fast-dev) image
+    args:
+    - -c
+    - devspace run-pipeline build-local
+  build-dev:
+    section: images
+    command: bash
+    description: Build Farm development image.
+    args:
+    - -c
+    - devspace run-pipeline build-dev
+  build-distroless:
+    section: images
+    command: bash
+    description: Build Farm with distroless based image(Farm default).
+    args:
+    - -c
+    - devspace run-pipeline build-distroless
+  build-nvct-mock:
+    section: images
+    command: bash
+    description: Build Farm with nvct mock service.
+    args:
+    - -c
+    - devspace run-pipeline build-nvct-mock
+  build-nvcf-mock:
+    section: images
+    command: bash
+    description: Build Farm with nvcf mock service.
+    args:
+    - -c
+    - devspace run-pipeline build-nvcf-mock
+  tasks-submit:
+    section: farm-tasks
+    command: ./${DEVSPACE_PROFILE_DIR}/tests/tasks/submit/test.sh
+    appendArgs: true
+    description: Run Farm Task Submit Test (specify test name)
+  tasks-shot-manager:
+    section: farm-tasks
+    command: ./${DEVSPACE_PROFILE_DIR}/tests/tasks/shot-manager/test.sh
+    appendArgs: true
+    description: Run Farm Task Shot Manager Test (specify test name)
+  tasks-submit-graph:
+    section: farm-tasks
+    command: ./${DEVSPACE_PROFILE_DIR}/tests/tasks/submit-graph/test.sh
+    appendArgs: true
+    description: Run Farm Dag Test (specify scenario name or json file)
+  results:
+    section: farm-results
+    command: ./${DEVSPACE_PROFILE_DIR}/tests/results/test.sh
+    description: Run Farm Results Service Test
+
+  # Database management commands
+  mysql-shell:
+    section: databases
+    command: kubectl
+    description: Open MySQL shell
+    args:
+    - exec
+    - -it
+    - statefulset/mysql
+    - --
+    - mysql
+    - -u
+    - ovfarm
+    - -povfarm
+    - ovFarmTaskStore
+
+  redis-cli:
+    section: databases
+    command: kubectl
+    description: Open Redis CLI
+    args:
+    - exec
+    - -it
+    - statefulset/redis-master
+    - --
+    - redis-cli
+
+  redis-cluster-cli:
+    section: databases
+    command: kubectl
+    description: Open Redis Cluster CLI (use with redis-ha-cluster profile)
+    args:
+    - exec
+    - -it
+    - redis-cluster-0
+    - --
+    - redis-cli
+    - -c
+
+  mysql-logs:
+    section: databases
+    command: kubectl
+    description: Show MySQL logs
+    args:
+    - logs
+    - -f
+    - statefulset/mysql
+
+  redis-logs:
+    section: databases
+    command: kubectl
+    description: Show Redis logs
+    args:
+    - logs
+    - -f
+    - statefulset/redis-master
+
+  database-status:
+    section: databases
+    command: kubectl
+    description: Check database pod status
+    args:
+    - get
+    - pods
+    - -l
+    - app.kubernetes.io/name in (mysql,redis)
+
+  # Cluster management commands (replaces `devspace nv-core kind create`)
+  cluster-create:
+    section: cluster
+    command: bash
+    description: Create Kind cluster with Traefik ingress for local development
+    args:
+    - -c
+    - ./${DEVSPACE_PROFILE_DIR}kind-cluster.sh create
+
+  cluster-delete:
+    section: cluster
+    command: bash
+    description: Delete the Kind cluster
+    args:
+    - -c
+    - ./${DEVSPACE_PROFILE_DIR}kind-cluster.sh delete
+
+  cluster-status:
+    section: cluster
+    command: bash
+    description: Show Kind cluster status and running pods
+    args:
+    - -c
+    - ./${DEVSPACE_PROFILE_DIR}kind-cluster.sh status
+
+

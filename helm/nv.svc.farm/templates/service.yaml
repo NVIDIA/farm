@@ -1,0 +1,24 @@
+{{- range $svcName, $originalSvc := .Values.apps }}
+{{- $svc := mergeOverwrite (deepCopy $.Values.defaults) (deepCopy $.Values.global) (deepCopy $originalSvc) }}
+{{- $ctx := (dict "svcName" $svcName "svc" $svc "root" $) }}
+{{- if $svc.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "nv-svc-farm.app.serviceAccountName" $ctx  }}
+  labels:
+    {{- include "nv-svc-farm.app.labels" $ctx | nindent 4 }}
+  annotations:
+    {{- toYaml $svc.service.annotations | nindent 4 }}
+spec:
+  type: {{ $svc.service.type }}
+  ports:
+    - port: {{ $svc.service.port }}
+      targetPort: {{ $svc.service.targetPortName }}
+      protocol: {{ $svc.service.protocol }}
+      name: {{ $svc.service.targetPortName }}
+  selector:
+    {{- include "nv-svc-farm.app.selectorLabels" $ctx | nindent 4 }}
+---
+{{- end }}
+{{- end }}

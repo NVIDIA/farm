@@ -1,0 +1,60 @@
+# Dockerfile-devspace
+FROM python:3.12-slim AS pydeps
+
+ARG PIP_INDEX_URL=https://pypi.org/simple
+ARG PIP_EXTRA_INDEX_URL=https://pypi.org/simple
+
+# Set up workspace
+WORKDIR /app
+
+# 1) Cache dependencies behind poetry files
+COPY poetry.lock pyproject.toml poetry.toml README.md ./
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -i ${PIP_INDEX_URL} --extra-index-url ${PIP_EXTRA_INDEX_URL} "poetry==1.8.3" && \
+    poetry export -f requirements.txt --without-hashes --output requirements.txt --without dev && \
+    pip install --no-cache-dir -i ${PIP_INDEX_URL} --extra-index-url ${PIP_EXTRA_INDEX_URL} -r requirements.txt && \
+    rm -f requirements.txt
+
+# 2) Build dashboard-ui (Node) as isolated repo
+FROM node:20-alpine AS dashboard-builder
+WORKDIR /app
+# Install only deps first for better caching
+COPY ./dashboard-ui/package.json ./dashboard-ui/package-lock.json ./
+RUN npm ci
+# Copy sources and build with workspace as CWD
+COPY ./dashboard-ui ./
+RUN npm run build
+
+# 3) Copy Python source and built dashboard assets, run from source (no project install)
+FROM python:3.12-slim
+WORKDIR /app
+ENV PIP_INDEX_URL=https://pypi.org/simple
+ENV PIP_EXTRA_INDEX_URL=https://pypi.org/simple
+# Bring in preinstalled deps from the pydeps stage
+COPY --from=pydeps /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+# Copy project metadata so pip -e can find the project
+COPY pyproject.toml poetry.toml README.md ./
+COPY nv/ ./nv/
+RUN mkdir -p ./nv/svc/farm/services/dashboard/build
+COPY --from=dashboard-builder /app/dist/ ./nv/svc/farm/services/dashboard/build/
+ENV PYTHONPATH=/app
+
+# 4) Service shims to support cmd: ["{{ .svcName }}-svc"]
+RUN printf '%s\n' \
+      '#!/usr/bin/env sh' \
+      'set -e' \
+      'cmd=$(basename "$0")' \
+      'svc=${cmd%-svc}' \
+      'exec python -m nv.svc.farm.services.$svc.entrypoint "$@"' \
+    > /usr/local/bin/farm-service-shim && \
+    chmod +x /usr/local/bin/farm-service-shim && \
+    for s in controller agents dag tasks jobs logs results retries settings dashboard; do \
+      ln -sf /usr/local/bin/farm-service-shim "/usr/local/bin/${s}-svc"; \
+    done
+
+# 5) Provide package metadata for nv.svc.farm without reinstalling deps (PEP 660 editable)
+RUN pip install --no-cache-dir -i ${PIP_INDEX_URL} --extra-index-url ${PIP_EXTRA_INDEX_URL} --no-deps -e .
+
+# Optional: non-root user for parity with prod
+RUN useradd -ms /bin/bash omniverse
+USER omniverse

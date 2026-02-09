@@ -1,0 +1,55 @@
+[package]
+authors = ["Kit Team"]
+category = "farm-jobs"
+changelog = """
+# Changelog
+
+## [0.1.0] - 2021-06-14
+- Initial release
+
+"""
+description = "Farm Agent Render Job"
+readme = "Farm Agent Render Job"
+title = "Farm Agent Render Job"
+version = "0.1.0"
+
+keywords = ["job"]
+
+[dependencies]
+"omni.services.render" = {}
+"omni.services.farm.agent.runner" = {}
+# This is currently hardcoded in Create as a dependency. make sure to align.
+"omni.services.transport.client.http_async" = { version = "1.3.1"}
+
+[job.create-render]
+job_type = "kit-service"
+name = "create-render"
+
+# Set the path to your Kit application script or batch file.
+# Use single-quotes to avoid having to escape characters in the path
+command = 'path/to/composer-startup-script'
+
+args = [
+    "--enable omni.services.render",
+    "--/app/file/ignoreUnsavedOnExit=true",
+    "--/app/extensions/excluded/0=omni.kit.window.privacy",
+    "--/app/hangDetector/enabled=0",
+    "--/app/asyncRendering=false",
+    "--/rtx/materialDb/syncLoads=true",
+    "--/omni.kit.plugin/syncUsdLoads=true",
+    "--/rtx/hydra/materialSyncLoads=true",
+    "--/rtx-transient/resourcemanager/texturestreaming/async=false",
+    "--/rtx-transient/resourcemanager/enableTextureStreaming=false",
+    "--/exts/omni.kit.window.viewport/blockingGetViewportDrawable=true",
+    "--/rtx-transient/dlssg/enabled=false"
+    # Example code to set up pushing metrics to a Prometheus push gateway.
+    #"--/exts/services.monitoring.metrics/push_metrics=true",
+    #"--/exts/services.monitoring.metrics/job_name=create_render",
+    #"--/exts/services.monitoring.metrics/push_gateway=http://localhost:9091"
+]
+
+task_function = "render.run"
+headless = true
+env = {}
+log_to_stdout = true
+

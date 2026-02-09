@@ -1,0 +1,23 @@
+{{- range $svcName, $originalSvc := .Values.apps }}
+{{- $svc := mergeOverwrite (deepCopy $.Values.defaults) (deepCopy $.Values.global) (deepCopy $originalSvc) }}
+{{- $ctx := (dict "svcName" $svcName "svc" $svc "root" $) }}
+
+{{- if and $svc.role.create  $svc.enabled -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ default (include "nv-svc-farm.app.serviceAccountName" $ctx) $svc.role.name }}
+  labels:
+   {{- include "nv-svc-farm.app.labels" $ctx | nindent 4 }}
+subjects:
+- kind: ServiceAccount
+  name: {{ default (include "nv-svc-farm.app.serviceAccountName" $ctx) $svc.serviceAccount.name }}
+  apiGroup: ""
+  namespace: {{ $.Release.Namespace }}
+roleRef:
+  kind: Role
+  name: {{ default (include "nv-svc-farm.app.serviceAccountName" $ctx) $svc.role.name }}
+  apiGroup: rbac.authorization.k8s.io
+---
+{{- end }}
+{{- end }}

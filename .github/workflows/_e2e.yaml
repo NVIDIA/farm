@@ -1,0 +1,70 @@
+name: E2E
+
+on:
+  workflow_call:
+
+jobs:
+  e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image
+
+      - name: Load image
+        run: docker load -i farm-image.tar
+
+      - name: Get image tag
+        id: image
+        run: |
+          TAG=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -1)
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Start services
+        run: |
+          # Use the pre-built image
+          export FARM_IMAGE="${{ steps.image.outputs.tag }}"
+          docker compose up -d
+        env:
+          COMPOSE_FILE: docker-compose.yaml
+
+      - name: Wait for services
+        run: |
+          echo "Waiting for services to be healthy..."
+          for i in 1 2 3 4 5 6; do
+            curl -sf http://localhost:8222/health && break || (echo "Attempt $i/6 failed, retrying in 5 sec..." && sleep 5)
+          done
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: dashboard-ui/package-lock.json
+
+      - name: Install dependencies
+        run: cd dashboard-ui && npm ci
+
+      - name: Install Playwright browsers
+        run: cd dashboard-ui && npx playwright install chromium
+
+      - name: Run E2E tests
+        run: cd dashboard-ui && npx playwright test
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: dashboard-ui/playwright-report/
+          retention-days: 7
+
+      - name: Stop services
+        if: always()
+        run: docker compose down

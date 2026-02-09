@@ -1,0 +1,70 @@
+{
+    "create-render": {
+        "name": "create-render",
+        "job_type": "kit-service",
+        "command": "launcher:///create",
+        "args": [
+            "--enable omni.services.render",
+            "--/app/file/ignoreUnsavedOnExit=true",
+            "--/app/extensions/excluded/0=omni.kit.window.privacy",
+            "--/app/hangDetector/enabled=0",
+            "--/app/asyncRendering=false",
+            "--/rtx/materialDb/syncLoads=true",
+            "--/omni.kit.plugin/syncUsdLoads=true",
+            "--/rtx/hydra/materialSyncLoads=true",
+            "--/rtx-transient/resourcemanager/texturestreaming/async=false",
+            "--/rtx-transient/resourcemanager/enableTextureStreaming=false",
+            "--/exts/omni.kit.window.viewport/blockingGetViewportDrawable=true",
+            "--/rtx-transient/dlssg/enabled=false"
+        ],
+        "task_function": "render.run",
+        "env": {},
+        "log_to_stdout": true,
+        "extension_paths": [
+            "C:\\Users\\rpowers\\AppData\\Local\\nvidia\\nv-svc-farm\\job-definitions/exts-job.omni.farm.render"
+        ],
+        "allowed_args": {},
+        "job_spec_path": "C:\\Users\\rpowers\\AppData\\Local\\nvidia\\nv-svc-farm\\job-definitions\\job.omni.farm.render.error.kit",
+        "headless": true,
+        "active": true,
+        "unresolved_command_path": "launcher:///create",
+        "success_return_codes": [0],
+        "capacity_requirements": {},
+        "working_directory": null,
+        "container": ""
+    },
+    "another-create-render": {
+        "name": "another-create-render",
+        "job_type": "kit-service",
+        "command": "launcher:///create",
+        "args": [
+            "--enable omni.services.render",
+            "--/app/file/ignoreUnsavedOnExit=true",
+            "--/app/extensions/excluded/0=omni.kit.window.privacy",
+            "--/app/hangDetector/enabled=0",
+            "--/app/asyncRendering=false",
+            "--/rtx/materialDb/syncLoads=true",
+            "--/omni.kit.plugin/syncUsdLoads=true",
+            "--/rtx/hydra/materialSyncLoads=true",
+            "--/rtx-transient/resourcemanager/texturestreaming/async=false",
+            "--/rtx-transient/resourcemanager/enableTextureStreaming=false",
+            "--/exts/omni.kit.window.viewport/blockingGetViewportDrawable=true",
+            "--/rtx-transient/dlssg/enabled=false"
+        ],
+        "task_function": "render.run",
+        "env": {},
+        "log_to_stdout": true,
+        "extension_paths": [
+            "C:\\Users\\rpowers\\AppData\\Local\\nvidia\\nv-svc-farm\\job-definitions/exts-job.omni.farm.render"
+        ],
+        "allowed_args": {},
+        "job_spec_path": "C:\\Users\\rpowers\\AppData\\Local\\nvidia\\nv-svc-farm\\job-definitions\\job.omni.farm.render.kit",
+        "headless": true,
+        "active": true,
+        "unresolved_command_path": "launcher:///create",
+        "success_return_codes": [0],
+        "capacity_requirements": {},
+        "working_directory": null,
+        "container": "potato-container"
+    }
+}

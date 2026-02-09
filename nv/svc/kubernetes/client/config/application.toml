@@ -1,0 +1,5 @@
+[settings]
+nv.svc.kubernetes.client.load_in_cluster_config = false
+nv.svc.kubernetes.client.verify_ssl = false
+nv.svc.kubernetes.client.kube_config_path = ""
+nv.svc.kubernetes.client.config_context = ""

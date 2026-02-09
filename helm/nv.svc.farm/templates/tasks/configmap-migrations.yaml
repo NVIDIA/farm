@@ -1,0 +1,84 @@
+{{- if $.Values.apps.tasks.enabled -}}
+{{- $mysql := .Values.external.mysql -}}
+{{- $ctx := dict "svcName" "tasks" "root" $ "Chart" .Chart "Release" .Release -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ .Release.Name }}-migrations"
+  labels:
+    {{- include "nv-svc-farm.app.labels" $ctx | nindent 4 }}
+data:
+
+  mysql.cnf: |-
+        [client]
+        user={{ $mysql.auth.username }}
+        host={{ include "nv-svc-farm.mysql.host" $ctx | quote }}
+        port={{ $mysql.port }}
+        database={{ $mysql.auth.database }}
+
+  run_migrations.sh: |-
+        #!/usr/bin/env bash
+        set -e
+        set -u
+
+        echo "Migration script starting"
+
+        mysql --defaults-file=/etc/nvidia/farm/migrations/mysql.cnf --password=$MYSQL_PASSWORD < /etc/nvidia/farm/migrations/migrate_01.sql
+
+        echo "Done."
+
+  migrate_01.sql: |-
+        USE {{ $mysql.auth.database }};
+
+        DROP PROCEDURE IF EXISTS migrate_01;
+
+        delimiter //
+
+        CREATE PROCEDURE migrate_01() 
+        BEGIN
+
+            SET @tasksTblExist = (SELECT count(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '{{ $mysql.auth.database }}' AND TABLE_NAME = 'Tasks');
+
+            SET @labelsColExist = (SELECT count(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '{{ $mysql.auth.database }}' AND TABLE_NAME = 'Tasks' AND COLUMN_NAME='labels');
+
+            -- Update if Tasks Table exists but with no Labels column.
+            IF (@TasksTblExist > 0) THEN
+
+                IF (@labelsColExist = 0) THEN
+
+                    SELECT 'Starting migrate_01 procedure.' AS '';
+
+                    ALTER TABLE Tasks ADD labels varchar(2048) AFTER metadata;
+
+                    ALTER TABLE Tasks MODIFY task_type varchar(512);
+
+                    ALTER TABLE Tasks MODIFY task_function varchar(128);
+
+                    ALTER TABLE Tasks MODIFY task_args varchar(4096);
+
+                    ALTER TABLE Tasks MODIFY user_id varchar(2048);
+
+                    ALTER TABLE TaskRevisions MODIFY task_agent_id varchar(2048);
+
+                    ALTER TABLE TaskRevisions MODIFY task_user_id varchar(2048);
+
+                    SELECT 'migrate_01 completed.' AS '';
+
+                ELSE
+                    SELECT 'Skipping migrate_01, labels column already exists.' AS '';
+                END IF;
+            ELSE
+                SELECT 'Skipping migrate_01, Tasks table does not exist.' AS '';
+            END IF;
+
+        END;
+
+        //
+
+        delimiter ;
+
+        -- Execute the procedure
+        CALL migrate_01();
+
+        DROP PROCEDURE migrate_01;
+{{- end }}

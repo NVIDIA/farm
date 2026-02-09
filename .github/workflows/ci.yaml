@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  detect-changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+      docker: ${{ steps.filter.outputs.docker }}
+      helm: ${{ steps.filter.outputs.helm }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'nv/**'
+              - 'tests/**'
+              - 'pyproject.toml'
+              - 'poetry.lock'
+            frontend:
+              - 'dashboard-ui/**'
+            docker:
+              - 'Dockerfile*'
+              - '.dockerignore'
+            helm:
+              - 'helm/**'
+
+  backend:
+    name: Backend
+    needs: detect-changes
+    if: needs.detect-changes.outputs.backend == 'true'
+    uses: ./.github/workflows/_python.yaml
+
+  frontend:
+    name: Frontend
+    needs: detect-changes
+    if: needs.detect-changes.outputs.frontend == 'true'
+    uses: ./.github/workflows/_frontend.yaml
+
+  docker:
+    name: Docker
+    needs: detect-changes
+    if: needs.detect-changes.outputs.docker == 'true' || needs.detect-changes.outputs.backend == 'true' || needs.detect-changes.outputs.frontend == 'true'
+    uses: ./.github/workflows/_docker.yaml
+
+  helm:
+    name: Helm
+    needs: detect-changes
+    if: needs.detect-changes.outputs.helm == 'true'
+    uses: ./.github/workflows/_helm.yaml
+
+  e2e:
+    name: E2E
+    needs: [backend, frontend, docker, helm]
+    if: |
+      always() && !cancelled() &&
+      needs.docker.result == 'success' &&
+      (needs.backend.result == 'success' || needs.backend.result == 'skipped') &&
+      (needs.frontend.result == 'success' || needs.frontend.result == 'skipped') &&
+      (needs.helm.result == 'success' || needs.helm.result == 'skipped')
+    uses: ./.github/workflows/_e2e.yaml
+
+  ci-status:
+    name: CI Status
+    runs-on: ubuntu-latest
+    needs: [backend, frontend, docker, helm, e2e]
+    if: always()
+    steps:
+      - name: Check status
+        run: |
+          if [[ "${{ needs.backend.result }}" == "failure" ]] || \
+             [[ "${{ needs.frontend.result }}" == "failure" ]] || \
+             [[ "${{ needs.docker.result }}" == "failure" ]] || \
+             [[ "${{ needs.helm.result }}" == "failure" ]] || \
+             [[ "${{ needs.e2e.result }}" == "failure" ]]; then
+            echo "One or more jobs failed"
+            exit 1
+          fi
+          echo "All jobs passed or were skipped"

@@ -1,0 +1,566 @@
+[
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "submitted",
+        "user_id": "gchristian",
+        "agent_id": "",
+        "details": null,
+        "progress": null,
+        "time": 1732076042.03493
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "starting",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 0,
+            "total_step_count": 0,
+            "progress": 0.0,
+            "status_message": "",
+            "time_remaining": 0.0
+        },
+        "time": 1732076045.9868
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 0,
+            "total_step_count": 0,
+            "progress": null,
+            "status_message": null,
+            "time_remaining": null
+        },
+        "time": 1732076062.56923
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 0,
+            "total_step_count": 0,
+            "progress": null,
+            "status_message": null,
+            "time_remaining": null
+        },
+        "time": 1732076063.72476
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 8,
+            "total_step_count": 94,
+            "progress": 0.0851063829787234,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076065.95536
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 12,
+            "total_step_count": 94,
+            "progress": 0.1276595744680851,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076068.37606
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 14,
+            "total_step_count": 94,
+            "progress": 0.14893617021276595,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076069.49975
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 14,
+            "total_step_count": 94,
+            "progress": 0.14893617021276595,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076070.63675
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 14,
+            "total_step_count": 94,
+            "progress": 0.14893617021276595,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076072.25629
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 14,
+            "total_step_count": 94,
+            "progress": 0.14893617021276595,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076073.40343
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 14,
+            "total_step_count": 94,
+            "progress": 0.14893617021276595,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076074.52513
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 14,
+            "total_step_count": 94,
+            "progress": 0.14893617021276595,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076075.6422
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 14,
+            "total_step_count": 94,
+            "progress": 0.14893617021276595,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076077.18404
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 14,
+            "total_step_count": 94,
+            "progress": 0.14893617021276595,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076078.40148
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 14,
+            "total_step_count": 94,
+            "progress": 0.14893617021276595,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076080.78759
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 14,
+            "total_step_count": 94,
+            "progress": 0.14893617021276595,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076081.92167
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 14,
+            "total_step_count": 94,
+            "progress": 0.14893617021276595,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076083.71619
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 14,
+            "total_step_count": 94,
+            "progress": 0.14893617021276595,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076084.84483
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 17,
+            "total_step_count": 94,
+            "progress": 0.18085106382978725,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076086.03287
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 18,
+            "total_step_count": 94,
+            "progress": 0.19148936170212766,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076087.24752
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 29,
+            "total_step_count": 94,
+            "progress": 0.30851063829787234,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076088.38385
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 37,
+            "total_step_count": 94,
+            "progress": 0.39361702127659576,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076089.51659
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 50,
+            "total_step_count": 94,
+            "progress": 0.5319148936170213,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076091.33933
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 57,
+            "total_step_count": 94,
+            "progress": 0.6063829787234043,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076092.46468
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 57,
+            "total_step_count": 94,
+            "progress": 0.6063829787234043,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076093.59928
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 57,
+            "total_step_count": 94,
+            "progress": 0.6063829787234043,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076095.53394
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 57,
+            "total_step_count": 94,
+            "progress": 0.6063829787234043,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076096.74384
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 58,
+            "total_step_count": 94,
+            "progress": 0.6170212765957447,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076097.96026
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 59,
+            "total_step_count": 94,
+            "progress": 0.6276595744680851,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076099.39297
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 62,
+            "total_step_count": 94,
+            "progress": 0.6595744680851063,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076100.6592
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 65,
+            "total_step_count": 94,
+            "progress": 0.6914893617021277,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076102.41667
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 67,
+            "total_step_count": 94,
+            "progress": 0.7127659574468085,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076103.65895
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 70,
+            "total_step_count": 94,
+            "progress": 0.7446808510638298,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076104.81746
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 71,
+            "total_step_count": 94,
+            "progress": 0.7553191489361702,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076106.49088
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 72,
+            "total_step_count": 94,
+            "progress": 0.7659574468085106,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076107.9433
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 75,
+            "total_step_count": 94,
+            "progress": 0.7978723404255319,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076109.01826
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "running",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 75,
+            "total_step_count": 94,
+            "progress": 0.7978723404255319,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076109.06475
+    },
+    {
+        "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+        "status": "finished",
+        "user_id": "gchristian",
+        "agent_id": "ip-10-0-102-90-8457",
+        "details": null,
+        "progress": {
+            "current_step_index": 75,
+            "total_step_count": 94,
+            "progress": 0.7978723404255319,
+            "status_message": null,
+            "time_remaining": 0.0
+        },
+        "time": 1732076115.96401
+    }
+]

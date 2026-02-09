@@ -1,0 +1,188 @@
+{{ template "chart.header" . }}
+{{ template "chart.deprecationWarning" . }}
+{{ template "chart.badgesSection" . }}
+{{ template "chart.description" . }}
+{{ template "chart.homepageLine" . }}
+{{ template "chart.sourcesSection" . }}
+{{ template "chart.requirementsSection" . }}
+
+
+## Overview
+
+This chart assumes that a Kubernetes cluster is already available and configured.
+
+Depending on the ingress controller and namespace some changes may be required.
+
+
+## Quick start
+
+Before installing it's worth considering Image Pull Secrets and Ingress access.
+
+NOTE: use `--dry-run` to inspect the resulting Kubernetes manifests generated from the helm chart.
+
+```bash
+helm upgrade \
+    --install \
+    nv-svc-farm \
+    . \
+    --create-namespace \
+    --namespace <<NAMESPACE-NAME>> \
+    --set global.imagePullSecrets[0].name=registry-secret \
+    --set global.image.tag="2.0.0"
+
+```
+
+### Image Pull Secrets
+
+Container images are hosted on **ghcr.io** (GitHub Container Registry).
+
+Therefore, you will need to create an Image Pull Secret to be able to pull the containers within Kubernetes.
+
+NOTE: If the `<<NAMESPACE-NAME>>` namespace does not exist, create it prior to creating the secret.
+
+```bash
+
+kubectl create namespace <<NAMESPACE-NAME>>
+
+kubectl create secret docker-registry \
+  registry-secret \
+  --namespace <<NAMESPACE-NAME>> \
+  --docker-server="ghcr.io" \
+  --docker-username='<<YOUR-GITHUB-USERNAME>>' \
+  --docker-password=<<YOUR-GITHUB-PAT>>
+```
+
+Then during install, specify the global image pull secret.
+
+```bash
+--set global.imagePullSecrets[0].name=registry-secret
+```
+
+
+### Ingress Access
+
+This chart does not bundle an ingress controller. You must have an ingress controller already installed in your cluster (e.g., Traefik, NGINX Ingress, HAProxy, etc.).
+
+By default, the chart does not specify an `ingressClassName`, which means it will use your cluster's default ingress class. You can explicitly set the ingress class with `--set global.ingress.ingressClassName="YOUR-INGRESS-CLASS"`.
+
+It's worth getting familiar with the set of options available under the `global.ingress` setting.
+
+
+#### Access via DNS
+
+This example uses a simple local DNS setup with any ingress controller.
+
+For production setups you'll likely need to configure TLS cert secrets for the hosts (this is beyond the scope of this guide).
+
+To use a custom local DNS, we suggest using nip.io for example `127-0-0-1.nip.io`, which returns 127.0.0.1. For other custom DNS we'll need to update **/etc/hosts** and map it to the Node's Internal IP.
+
+```bash
+# Deploy Farm with ingress enabled (assumes ingress controller is already installed)
+helm upgrade \
+    --install \
+    nv-svc-farm \
+    . \
+    --create-namespace \
+    --namespace <<NAMESPACE-NAME>> \
+    --set "global.imagePullSecrets[0]=registry-secret" \
+    --set global.ingress.host="127-0-0-1.nip.io" \
+    --set global.ingress.enabled=true
+    # Optionally specify ingress class if not using cluster default:
+    # --set global.ingress.ingressClassName="traefik"
+
+kubectl get nodes -o=wide
+
+NAME                          STATUS   ROLES                  AGE     VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE       KERNEL-VERSION      CONTAINER-RUNTIME
+ov-local-control-plane   Ready    control-plane,master   3h22m   v1.23.4   172.25.0.2    <none>        Ubuntu 21.10   5.15.0-27-generic   containerd://1.5.10
+```
+
+Add an entry to your **/etc/hosts**:
+
+```bash
+sudo vi /etc/hosts
+
+172.25.0.2      ov.local
+```
+
+Check the port your ingress controller is exposing (this varies by controller):
+
+```bash
+# Example: Check ingress controller service
+kubectl get svc -A | grep ingress
+```
+
+A quick check confirms we can reach the service from outside the cluster:
+
+```bash
+curl http://ov.local:<INGRESS-PORT>/status
+"OK"
+```
+
+
+#### Access via Node's IP
+
+When the ingress host is **not** specified, the ingress controller will default to using the controller service's IP which is then routed via the Node's IP.
+
+```bash
+# Install your preferred ingress controller first, then deploy Farm
+helm upgrade \
+    --install \
+    nv.svc.farm \
+    . \
+    --create-namespace \
+    --namespace <<NAMESPACE-NAME>> \
+    --set global.imagePullSecrets[0].name=registry-secret \
+    --set global.ingress.host="" \
+    --set global.ingress.enabled=true
+    # Optionally specify ingress class:
+    # --set global.ingress.ingressClassName="traefik"
+
+kubectl -n <<NAMESPACE-NAME>> get ingress
+NAME                   CLASS    HOSTS   ADDRESS         PORTS   AGE
+nv-svc-farm-tasks      <none>   *       10.43.230.160   80      10m
+
+kubectl get nodes -o wide
+NAME                    STATUS   ROLES                  AGE   VERSION        INTERNAL-IP   EXTERNAL-IP   OS-IMAGE   KERNEL-VERSION      CONTAINER-RUNTIME
+k3d-ov-local-server-0   Ready    control-plane,master   21h   v1.23.6+k3s1   172.18.0.3    <none>        K3s dev    5.15.0-43-generic   containerd://1.5.5
+```
+
+A quick check confirms we can reach the service from outside the cluster (port depends on your ingress controller configuration):
+
+```bash
+curl http://172.18.0.3:<INGRESS-PORT>/status
+"OK"
+```
+
+
+### Understanding Values Configuration Construction
+
+The values are merged internally and externally, -f file.yaml -> .Values.defaults -> .Values.global -> .Values.apps.[appname].
+This allows for each service to inherit sane defaults from .Values.defaults and also allows global overrides that effect each .Values.apps[*] and finally application specific overrides .Values.apps.[appname].*
+
+
+## Configuration
+
+
+**NOTE: Jobs API Key**
+
+The Jobs API Key is needed for creating job definitions within Farm via the Jobs service.
+
+To retrieve the API key from the cluster, retrieve the Jobs secret and get the "api_key" and base64 decode it.
+
+```bash
+kubectl get secret -n <<NAMESPACE-NAME>> farm-jobs -o=jsonpath={.data.api_key} | base64 -d
+```
+
+To view values via helm use `helm show values`
+
+**NOTE**: There are **global** values.
+
+{{ template "chart.valuesSection" . }}
+
+{{ template "chart.maintainersSection" . }}
+
+{{ template "helm-docs.versionFooter" . }}
+
+## License
+
+Use of Farm is covered under the [Apache 2.0 License](https://github.com/NVIDIA/farm/blob/main/LICENSE).

@@ -1,0 +1,1 @@
+// static/js/index.js

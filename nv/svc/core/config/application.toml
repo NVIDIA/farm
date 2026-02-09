@@ -1,0 +1,19 @@
+[settings]
+# The applications URL root (ie: /api/v0) in case a service is fronted by a Proxy (https://fastapi.tiangolo.com/advanced/behind-a-proxy/)
+nv.svc.core.root_path = ""
+
+# include endpoints in openapi spec.
+nv.svc.core.show_status_endpoint = true
+
+# Configuration options for generating Correlation IDs to requests issued against the Services framework
+# Flag indicating whether to use the default Correlation ID middleware provided by the Services framework:
+nv.svc.core.correlation_id.use_default_middleware = true
+# Name of the HTTP Header to read correlation IDs from. `X-Request-ID` and `X-Correlation-ID` are common choices:
+nv.svc.core.correlation_id.header_name = "X-Correlation-ID"
+# Flag indicating whether to update the incoming request's header value with the generated correlation ID. This is to
+# support use cases where it's relied on the presence of the request header (like various tracing middlewares):
+nv.svc.core.correlation_id.update_request_header = true
+
+# logging configuration settings
+
+nv.svc.core.logging.log_level = "INFO"

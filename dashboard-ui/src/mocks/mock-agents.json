@@ -1,0 +1,66 @@
+{
+    "ip-10-0-102-90-8457": {
+        "active_tasks": [],
+        "task_types": [],
+        "checkin_time": 1730160837.4045234,
+        "status": "idle",
+        "resources": {},
+        "errored_task_count": 0
+    },
+    "ip-10-0-101-16-8940": {
+        "active_tasks": [],
+        "task_types": [],
+        "checkin_time": 1730160845.1712193,
+        "status": "idle",
+        "resources": {},
+        "errored_task_count": 0
+    },
+    "ip-10-0-101-16-8997": {
+        "active_tasks": [],
+        "task_types": [],
+        "checkin_time": 1730160831.7862196,
+        "status": "idle",
+        "resources": {},
+        "errored_task_count": 0
+    },
+    "ip-10-0-102-90-8515": {
+        "active_tasks": [],
+        "task_types": [],
+        "checkin_time": 1730160876.8302295,
+        "status": "idle",
+        "resources": {},
+        "errored_task_count": 0
+    },
+    "ip-10-0-102-33-1353": {
+        "active_tasks": [],
+        "task_types": [],
+        "checkin_time": 1730160885.3570416,
+        "status": "idle",
+        "resources": {},
+        "errored_task_count": 0
+    },
+    "ip-10-0-101-169-1371": {
+        "active_tasks": [],
+        "task_types": [],
+        "checkin_time": 1730160831.6472697,
+        "status": "idle",
+        "resources": {},
+        "errored_task_count": 0
+    },
+    "ip-10-0-102-33-1354": {
+        "active_tasks": [],
+        "task_types": [],
+        "checkin_time": 1730160886.4500043,
+        "status": "idle",
+        "resources": {},
+        "errored_task_count": 0
+    },
+    "ip-10-0-101-169-1370": {
+        "active_tasks": [],
+        "task_types": [],
+        "checkin_time": 1730160833.2432995,
+        "status": "idle",
+        "resources": {},
+        "errored_task_count": 0
+    }
+}
