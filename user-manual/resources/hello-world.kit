@@ -1,0 +1,17 @@
+# Schema for the job definition of a system command or executable:
+[job.hello-world]
+# Type of the job. Using "base" makes it possible to run executable files:
+job_type = "base"
+
+# User-friendly name for the job:
+name = "hello-world"
+
+# The command or application that will be executed by the job:
+# on some systems this may need to be python3
+command = "python"
+
+# Arguments to supply to the command specified above:
+args = ["-c",'print("Hello_World!")']
+
+# Capture information from `stdout` and `stderr` for the job's logs:
+log_to_stdout = true

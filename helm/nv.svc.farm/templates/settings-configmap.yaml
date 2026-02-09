@@ -1,0 +1,19 @@
+{{- $g := $ }}
+{{- range $svcName, $originalSvc := .Values.apps }}
+{{- $svc := mergeOverwrite (deepCopy $.Values.defaults) (deepCopy $.Values.global) (deepCopy $originalSvc) }}
+{{- $ctx := (dict "svcName" $svcName "svc" $svc "Values" $g.Values "Template" $.Template "Release" $.Release "root" $g) }}
+{{- if $svc.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "nv-svc-farm.app.fullname" $ctx }}-config
+  labels:
+    {{- include "nv-svc-farm.app.labels" $ctx | nindent 4 }}
+data:
+  application.yaml: |-
+    {{- $strSettings := toYaml ( dict "settings" $svc.settings) | replace "\\n" "\n" | replace "\\\"" "\"" | nindent 8 }}
+    {{- $renderedSettings := tpl $strSettings $ctx }}
+    {{- $renderedSettings | nindent 8 }}
+---
+{{- end }}
+{{- end }}

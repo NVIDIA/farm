@@ -1,0 +1,25 @@
+# Schema for the job definition of a system command or executable:
+[job.check-gpu]
+# Type of the job. Using "base" makes it possible to run executable files:
+job_type = "base"
+
+# User-friendly display name for the job:
+name = "check-gpu"
+
+# The command or application that will be executed by the job:
+command = "nvidia-smi"
+
+# Arguments to supply to the command specified above:
+args = []
+
+# Capture information from `stdout` and `stderr` for the job's logs:
+log_to_stdout = true
+
+# Specify the container to use with Kubernetes
+container = "nvidia/cuda:11.4.1-base-ubuntu20.04"
+
+# Define hardware requirements to run this.
+[job.check-gpu.capacity_requirements.resource_limits]
+cpu = 1
+memory = "4096Mi"
+"nvidia.com/gpu" = 1

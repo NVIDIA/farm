@@ -1,0 +1,2195 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "nv.svc.farm",
+    "description": "Farm Services.",
+    "version": "2.0.42"
+  },
+  "paths": {
+    "/status": {
+      "get": {
+        "summary": "Returns the current status of the service",
+        "description": "Return the current status of the service.",
+        "operationId": "_status_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health probe",
+        "description": "Return the current status of the service.",
+        "operationId": "_status_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ready": {
+      "get": {
+        "summary": "Readiness probe",
+        "description": "Return the current status of the service.",
+        "operationId": "_status_ready_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/startup": {
+      "get": {
+        "summary": "Startup probe",
+        "description": "Return the current status of the service.",
+        "operationId": "_status_startup_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/metrics": {
+      "get": {
+        "tags": [
+          "metrics"
+        ],
+        "summary": "Returns metrics related to the use of the service.",
+        "description": "Retrieve runtime metrics.\n\nReturned metrics will be in the Prometheus format.",
+        "operationId": "metrics_metrics_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/management/agents/list": {
+      "get": {
+        "tags": [
+          "agents"
+        ],
+        "summary": "Return the list of connected Agents",
+        "description": "Return the list of Agents which have connected to the Queue.",
+        "operationId": "list_agents_queue_management_agents_list_get",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/AgentStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Agent status",
+              "description": "Status of the Agent by which to filter the search query."
+            },
+            "description": "Status of the Agent by which to filter the search query."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/management/agents/checkin": {
+      "post": {
+        "tags": [
+          "agents"
+        ],
+        "summary": "Checkin endpoint for Agents",
+        "description": "Endpoint through which Agents can perform checkins at regular intervals to inform the Queue about their status.",
+        "operationId": "checkin_queue_management_agents_checkin_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/management/agents/remove": {
+      "post": {
+        "tags": [
+          "agents"
+        ],
+        "summary": "Remove the given Agent",
+        "description": "Remove the given Agent from the pool of available Agents.",
+        "operationId": "remove_queue_management_agents_remove_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/management/agents/evict": {
+      "post": {
+        "tags": [
+          "agents"
+        ],
+        "summary": "Evict the given Agent",
+        "description": "Evicting an agent will prevent it from taking on new work.",
+        "operationId": "evict_queue_management_agents_evict_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/management/agents/enable": {
+      "post": {
+        "tags": [
+          "agents"
+        ],
+        "summary": "Enable the given Agent",
+        "description": "Enabling an agent will allow it to take on new work after an eviction.",
+        "operationId": "enable_queue_management_agents_enable_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/management/agents/status": {
+      "get": {
+        "tags": [
+          "agents"
+        ],
+        "summary": "Healthcheck endpoint for agents service.",
+        "description": "Returns 200 and OK if agents service is available.",
+        "operationId": "status_queue_management_agents_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/management/dashboard/config": {
+      "get": {
+        "summary": "Get Config",
+        "description": "Serve the explicitly exposed configuration data.\n\nReturn the configuration as a dictionary.",
+        "operationId": "get_config_queue_management_dashboard_config_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/management/dashboard/version": {
+      "get": {
+        "summary": "Get Version",
+        "description": "Serve the extension version.\n\nReturn the version as a string.",
+        "operationId": "get_version_queue_management_dashboard_version_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/management/jobs/load": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Load and retrieve the job definitions",
+        "description": "Load and retrieve the job definitions",
+        "operationId": "load_job_Definitions_queue_management_jobs_load_get",
+        "parameters": [
+          {
+            "name": "filter",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ".*",
+              "title": "Filter"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/management/jobs/save": {
+      "post": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Store and save a job definition",
+        "description": "Endpoint through which job definitions can be stored",
+        "operationId": "save_job_definition_queue_management_jobs_save_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JobDefinitionModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "_ApiKeyHeader": []
+          }
+        ]
+      }
+    },
+    "/queue/management/jobs/remove": {
+      "post": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Remove a job definition",
+        "description": "Endpoint through which job definitions can be removed",
+        "operationId": "remove_job_definition_queue_management_jobs_remove_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JobDefinitionRemoveModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "_ApiKeyHeader": []
+          }
+        ]
+      }
+    },
+    "/queue/management/jobs/status": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Healthcheck endpoint for jobs service.",
+        "description": "Returns 200 and OK if jobs service is available.",
+        "operationId": "status_queue_management_jobs_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/management/logs/status": {
+      "get": {
+        "tags": [
+          "logs"
+        ],
+        "summary": "Healthcheck endpoint for logs service.",
+        "description": "Returns 200 and OK if logs service is available.",
+        "operationId": "status_queue_management_logs_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/management/logs/download/{task_id}": {
+      "get": {
+        "tags": [
+          "logs"
+        ],
+        "summary": "Download the log of the given task",
+        "description": "Download the log of the given task so it can be inspected, stored or shared.",
+        "operationId": "download_logs_queue_management_logs_download__task_id__get",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Task ID",
+              "description": "Unique identifier of the task for which to download the log."
+            },
+            "description": "Unique identifier of the task for which to download the log."
+          },
+          {
+            "name": "agent_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Agent ID",
+              "description": "Unique identifier of the Agent which executed the given task."
+            },
+            "description": "Unique identifier of the Agent which executed the given task."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/management/logs/{task_id}": {
+      "get": {
+        "tags": [
+          "logs"
+        ],
+        "summary": "Return the log of the given task",
+        "description": "Return the log produced by the execution of the given task.",
+        "operationId": "get_logs_queue_management_logs__task_id__get",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Task ID",
+              "description": "Unique identifier of the task for which to return the logs."
+            },
+            "description": "Unique identifier of the task for which to return the logs."
+          },
+          {
+            "name": "agent_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Agent ID",
+              "description": "Unique identifier of the Agent which executed the task."
+            },
+            "description": "Unique identifier of the Agent which executed the task."
+          },
+          {
+            "name": "latest_only",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "title": "Latest only?",
+              "description": "In the case where the task ran on multiple agents, only return the log issued by the most recent run.",
+              "default": true
+            },
+            "description": "In the case where the task ran on multiple agents, only return the log issued by the most recent run."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/management/logs/upload": {
+      "post": {
+        "tags": [
+          "logs"
+        ],
+        "summary": "Log upload endpoint for Agents",
+        "description": "Endpoint through which Agents can upload the log of the task they are executing.",
+        "operationId": "post_logs_queue_management_logs_upload_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentTaskLog"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/management/retries/submit": {
+      "post": {
+        "tags": [
+          "retries"
+        ],
+        "summary": "Retries a Task.",
+        "description": "Endpoint through which Tasks can be retried.",
+        "operationId": "post_retry_queue_management_retries_submit_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "title": "Task"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/management/retries/status": {
+      "get": {
+        "tags": [
+          "retries"
+        ],
+        "summary": "Healthcheck endpoint for retry service.",
+        "description": "Returns 200 and OK if retry service is available.",
+        "operationId": "status_queue_management_retries_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/settings": {
+      "get": {
+        "tags": [
+          "settings"
+        ],
+        "summary": "Expose Farm Queue settings",
+        "description": "Expose settings configured on the Farm Queue for tasks to query.",
+        "operationId": "get_settings_queue_settings_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetSettingsResponseModel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/management/tasks/list": {
+      "get": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Return the tasks matching the given search criteria",
+        "description": "Return metadata information about the tasks matching the given search criteria.",
+        "operationId": "list_queue_management_tasks_list_get",
+        "parameters": [
+          {
+            "name": "task_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Task type",
+              "description": "The type of tasks to return."
+            },
+            "description": "The type of tasks to return."
+          },
+          {
+            "name": "task_function",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Task function",
+              "description": "The function of tasks to return."
+            },
+            "description": "The function of tasks to return."
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Status"
+              },
+              "title": "Task statuses",
+              "description": "List of matching task statuses to return."
+            },
+            "description": "List of matching task statuses to return."
+          },
+          {
+            "name": "field",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Task fields",
+              "description": "If provided, will only return the minimum set of fields and the requested fields."
+            },
+            "description": "If provided, will only return the minimum set of fields and the requested fields."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/management/tasks/info/{task_id}": {
+      "get": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Return information about the given task",
+        "description": "Return metadata information about the given task.",
+        "operationId": "info_task_queue_management_tasks_info__task_id__get",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Task ID",
+              "description": "Unique identifier for the task."
+            },
+            "description": "Unique identifier for the task."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/management/tasks/revision-history/{task_id}": {
+      "get": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Return the revision history of the given task",
+        "description": "Return the list of revisions recorded for the given task.",
+        "operationId": "revision_history_queue_management_tasks_revision_history__task_id__get",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Task ID",
+              "description": "Unique identifier for the task."
+            },
+            "description": "Unique identifier for the task."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskRevisionHistoryResponseModel"
+                  },
+                  "title": "Response Revision History Queue Management Tasks Revision History  Task Id  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/management/tasks/submit": {
+      "post": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Submit the given task payload to the Queue",
+        "description": "Submit the given task payload to the Queue, so an Agent can process it.",
+        "operationId": "submit_task_queue_management_tasks_submit_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskSubmissionModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskSubmissionResponseModel"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/management/tasks/update": {
+      "post": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Update the given task",
+        "description": "Update the given task using the provided information payload.",
+        "operationId": "update_status_queue_management_tasks_update_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskUpdateModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskUpdateResponseModel"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/management/tasks/archive": {
+      "post": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Archive the given tasks",
+        "description": "Archive the given tasks, if their status is either finished, errored, cancelled.",
+        "operationId": "archive_task_queue_management_tasks_archive_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskArchiveRequestModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskArchiveResponseModel"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/management/tasks/cancel": {
+      "post": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Cancel the given task",
+        "description": "Cancel the given running task.",
+        "operationId": "cancel_task_queue_management_tasks_cancel_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskUpdateModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/management/tasks/retry": {
+      "post": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Retry the given task",
+        "description": "Resubmit the given task, so it can be processed once again by an Agent.",
+        "operationId": "retry_task_queue_management_tasks_retry_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskUpdateModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/management/tasks/fetch": {
+      "post": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Provide an Agent with a task to process",
+        "description": "Return the next available task that an Agent should process.",
+        "operationId": "fetch_queue_management_tasks_fetch_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskRequestModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/TaskDispatchModel"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Fetch Queue Management Tasks Fetch Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/management/tasks/status": {
+      "get": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Healthcheck endpoint for status service.",
+        "description": "Returns 200 and OK if status service is available.",
+        "operationId": "status_queue_management_tasks_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/management/tasks/revision-highest": {
+      "get": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Return the highest global task revision",
+        "description": "Returns the index of the highest (most recent) task revision stored in the task revision store.",
+        "operationId": "revision_highest_queue_management_tasks_revision_highest_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskRevisionTailResponseModel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/management/tasks/changed-between-revisions": {
+      "post": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Return a list of tasks IDs that have changed between the provided list of revisions",
+        "description": "Returns a unique list of tasks that have changed over a contiguous span of revision bound by the input arguments.",
+        "operationId": "changes_queue_management_tasks_changed_between_revisions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskChangeRequestModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskChangeResponseModel"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AgentModel": {
+        "properties": {
+          "agent_id": {
+            "type": "string",
+            "title": "Agent ID",
+            "description": "Unique agent identifier."
+          },
+          "task_types": {
+            "items": {},
+            "type": "array",
+            "title": "Available task types",
+            "description": "List of tasks the agent can handle.",
+            "default": []
+          },
+          "active_tasks": {
+            "items": {},
+            "type": "array",
+            "title": "Active tasks",
+            "description": "List of active tasks.",
+            "default": []
+          },
+          "resources": {
+            "type": "object",
+            "title": "Available resources",
+            "description": "List of available resources.",
+            "default": {}
+          },
+          "errored_task_count": {
+            "type": "integer",
+            "title": "Accumulated errors",
+            "description": "Accumulated amount of errored tasks on this agent."
+          },
+          "labels": {
+            "items": {},
+            "type": "array",
+            "title": "Agent labels",
+            "description": "List of labels associated with the agent.",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "agent_id"
+        ],
+        "title": "AgentModel",
+        "description": "AgentModel for specifying agent data."
+      },
+      "AgentStatus": {
+        "type": "string",
+        "enum": [
+          "active",
+          "idle",
+          "lost",
+          "evicted"
+        ],
+        "title": "AgentStatus",
+        "description": "AgentStatus used in farm."
+      },
+      "AgentTaskLog": {
+        "properties": {
+          "agent_id": {
+            "type": "string",
+            "title": "Agent ID",
+            "description": "Unique agent identifier."
+          },
+          "task_id": {
+            "type": "string",
+            "title": "Task ID",
+            "description": "Unique task identifier."
+          },
+          "logs": {
+            "type": "string",
+            "title": "Log",
+            "description": "Logs of the task."
+          }
+        },
+        "type": "object",
+        "required": [
+          "agent_id",
+          "task_id",
+          "logs"
+        ],
+        "title": "AgentTaskLog",
+        "description": "AgentTaskLog model."
+      },
+      "GetSettingsResponseModel": {
+        "properties": {
+          "settings": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Settings to expose via the Farm Queue.",
+            "description": "Settings provided to the Omniverse Farm Queue, and to be exposed to external services."
+          }
+        },
+        "type": "object",
+        "title": "GetSettingsResponseModel",
+        "description": "Response to the request to retrieve settings from the Farm Queue."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "JobDefinitionModel": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "default": "job-name"
+          },
+          "job_type": {
+            "type": "string",
+            "title": "Job Type",
+            "default": "base,kit,kit-service"
+          },
+          "command": {
+            "type": "string",
+            "title": "Command",
+            "default": "command"
+          },
+          "args": {
+            "items": {},
+            "type": "array",
+            "title": "Args",
+            "default": []
+          },
+          "task_function": {
+            "type": "string",
+            "title": "Task Function",
+            "default": ""
+          },
+          "env": {
+            "type": "object",
+            "title": "Env",
+            "default": {}
+          },
+          "log_to_stdout": {
+            "type": "boolean",
+            "title": "Log To Stdout",
+            "default": true
+          },
+          "extension_paths": {
+            "items": {},
+            "type": "array",
+            "title": "Extension Paths",
+            "default": []
+          },
+          "allowed_args": {
+            "type": "object",
+            "title": "Allowed Args",
+            "default": {}
+          },
+          "job_spec_path": {
+            "type": "string",
+            "title": "Job Spec Path"
+          },
+          "headless": {
+            "type": "boolean",
+            "title": "Headless",
+            "default": true
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active",
+            "default": true
+          },
+          "unresolved_command_path": {
+            "type": "string",
+            "title": "Unresolved Command Path"
+          },
+          "success_return_codes": {
+            "items": {},
+            "type": "array",
+            "title": "Success Return Codes",
+            "default": [
+              0
+            ]
+          },
+          "capacity_requirements": {
+            "type": "object",
+            "title": "Capacity Requirements",
+            "default": {}
+          },
+          "working_directory": {
+            "type": "string",
+            "title": "Working Directory"
+          },
+          "container": {
+            "type": "string",
+            "title": "Container",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "title": "JobDefinitionModel"
+      },
+      "JobDefinitionRemoveModel": {
+        "properties": {
+          "job_definition_name": {
+            "type": "string",
+            "title": "Job definition identifier",
+            "description": "Identifier of the job definition to remove."
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_definition_name"
+        ],
+        "title": "JobDefinitionRemoveModel",
+        "description": "Job definition remove model."
+      },
+      "Status": {
+        "type": "string",
+        "enum": [
+          "submitted",
+          "waiting",
+          "starting",
+          "running",
+          "errored",
+          "finished",
+          "paused",
+          "cancelled",
+          "archived",
+          "cancelling",
+          "pausing",
+          "pending"
+        ],
+        "title": "Status",
+        "description": "Standard task statuses."
+      },
+      "TaskArchiveRequestModel": {
+        "properties": {
+          "task_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Task IDs",
+            "description": "List of unique identifiers of tasks to archive",
+            "default": []
+          }
+        },
+        "type": "object",
+        "title": "TaskArchiveRequestModel",
+        "description": "Request model for archiving tasks."
+      },
+      "TaskArchiveResponseModel": {
+        "properties": {
+          "archived_tasks_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Archived tasks count",
+            "description": "Number of tasks archived"
+          },
+          "error_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Error count",
+            "description": "Number of exceptions raised during the archival"
+          },
+          "error_details": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Erro details",
+            "description": "Details of exceptions raised during the archival"
+          }
+        },
+        "type": "object",
+        "required": [
+          "archived_tasks_count",
+          "error_count",
+          "error_details"
+        ],
+        "title": "TaskArchiveResponseModel",
+        "description": "Respone model for archiving tasks."
+      },
+      "TaskChangeRequestModel": {
+        "properties": {
+          "after": {
+            "type": "integer",
+            "title": "After ID",
+            "description": "The lower bound for selecting revision_ids."
+          },
+          "ending_with": {
+            "type": "integer",
+            "title": "Ending With ID",
+            "description": "The upper bound for selecting revision_ids."
+          }
+        },
+        "type": "object",
+        "title": "TaskChangeRequestModel",
+        "description": "A starting and ending revision_id that will be used to bound a set of revision and extract the unique list of tasks that have changed."
+      },
+      "TaskChangeResponseModel": {
+        "properties": {
+          "task_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Task IDs",
+            "description": "List of unique identifiers of tasks that have changed.",
+            "default": []
+          }
+        },
+        "type": "object",
+        "title": "TaskChangeResponseModel",
+        "description": "Return a list of changed tasks given a range of task-revisions."
+      },
+      "TaskDispatchModel": {
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "title": "Task Id"
+          },
+          "task_type": {
+            "type": "string",
+            "title": "Task Type"
+          },
+          "task_args": {
+            "type": "object",
+            "title": "Task Args"
+          },
+          "task_function": {
+            "type": "string",
+            "title": "Task Function"
+          },
+          "task_function_args": {
+            "type": "object",
+            "title": "Task Function Args"
+          },
+          "userid": {
+            "type": "string",
+            "title": "Userid"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          },
+          "task_submission_time": {
+            "type": "number",
+            "title": "Task Submission Time"
+          },
+          "priority": {
+            "type": "integer",
+            "title": "Priority"
+          },
+          "metadata": {
+            "type": "object",
+            "title": "Metadata"
+          },
+          "labels": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Labels"
+          }
+        },
+        "type": "object",
+        "required": [
+          "task_id",
+          "task_type",
+          "task_args",
+          "task_function",
+          "task_function_args",
+          "userid",
+          "status",
+          "task_submission_time",
+          "priority",
+          "metadata",
+          "labels"
+        ],
+        "title": "TaskDispatchModel",
+        "description": "Returned as part of the fetch call."
+      },
+      "TaskProgressModel": {
+        "properties": {
+          "current_step_index": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current step index",
+            "description": "Index of the current step in the overall progress"
+          },
+          "total_step_count": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total steps count",
+            "description": "Overall number of steps in the progress"
+          },
+          "progress": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Progress completion",
+            "description": "Overall progress completion of the task (between 0.0 and 1.0)"
+          },
+          "status_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Progress status message",
+            "description": "Status message providing additional information about the current progress of the task"
+          },
+          "time_remaining": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated time remaining",
+            "description": "Estimated time remaining in seconds"
+          }
+        },
+        "type": "object",
+        "title": "TaskProgressModel",
+        "description": "Task progress information."
+      },
+      "TaskRequestModel": {
+        "properties": {
+          "task_types": {
+            "items": {},
+            "type": "array",
+            "title": "Task types",
+            "description": "A list of task types an agent requesting work is able to process"
+          },
+          "capacity": {
+            "type": "object",
+            "title": "Agent capacity",
+            "description": "CPU, GPU and RAM availability.",
+            "default": {}
+          },
+          "agent_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "binary"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Agent ID",
+            "description": "Unique identifier for the agent requesting the tasks."
+          },
+          "labels": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Task label filtering",
+            "description": "Labels by which to further filter tasks",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "task_types",
+          "agent_id"
+        ],
+        "title": "TaskRequestModel",
+        "description": "Task request model."
+      },
+      "TaskRevisionHistoryResponseModel": {
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "title": "Task ID",
+            "description": "Unique identifier for the task"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status",
+            "title": "Task status",
+            "description": "Status of the task"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User ID",
+            "description": "Unique identifier of the User which updated the task"
+          },
+          "agent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agent ID",
+            "description": "Unique identifier of the Agent which updated the task"
+          },
+          "details": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Details",
+            "description": "Details about the event"
+          },
+          "progress": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TaskProgressModel"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "time": {
+            "type": "number",
+            "title": "Timestamp",
+            "description": "Unix timestamp of the event",
+            "default": 0.0
+          }
+        },
+        "type": "object",
+        "required": [
+          "task_id",
+          "status"
+        ],
+        "title": "TaskRevisionHistoryResponseModel",
+        "description": "Response model for task revision history."
+      },
+      "TaskRevisionTailResponseModel": {
+        "properties": {
+          "revision_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revision ID",
+            "description": "Unique identifier of the task revision"
+          }
+        },
+        "type": "object",
+        "title": "TaskRevisionTailResponseModel",
+        "description": "Returned when an the final task-revision index is requested."
+      },
+      "TaskSubmissionModel": {
+        "properties": {
+          "user": {
+            "type": "string",
+            "maxLength": 2048,
+            "title": "User name",
+            "description": "Name of the user that submitted the task"
+          },
+          "task_type": {
+            "type": "string",
+            "maxLength": 512,
+            "title": "Task type",
+            "description": "The type of task to execute"
+          },
+          "task_args": {
+            "type": "object",
+            "title": "Task arguments",
+            "description": "Arguments to be passed to the task"
+          },
+          "task_function": {
+            "type": "string",
+            "maxLength": 128,
+            "title": "Function",
+            "description": "The function to execute within the task",
+            "default": ""
+          },
+          "task_function_args": {
+            "type": "object",
+            "title": "Function arguments",
+            "description": "Arguments to supply to the task function",
+            "default": {}
+          },
+          "task_requirements": {
+            "type": "object",
+            "title": "Task requirements",
+            "description": "Indiquate memory, CPU and GPU requirements",
+            "default": {}
+          },
+          "task_comment": {
+            "type": "string",
+            "title": "Comment",
+            "description": "User comments regarding the submitted task",
+            "default": ""
+          },
+          "priority": {
+            "type": "integer",
+            "title": "Task priority",
+            "description": "Task priority. 0 is the highest priority.",
+            "default": 65535
+          },
+          "metadata": {
+            "type": "object",
+            "title": "Task metadata",
+            "description": "Task metadata (ie: list of extensions, registries etc)"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Status"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Task status",
+            "description": "Status of the task, submitted if not set."
+          },
+          "labels": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Task labels",
+            "description": "Task labels to steer tasks to specific controllers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user",
+          "task_type",
+          "task_args"
+        ],
+        "title": "TaskSubmissionModel",
+        "description": "Request model for task submission."
+      },
+      "TaskSubmissionResponseModel": {
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "title": "Task ID",
+            "description": "Unique identifier for the task"
+          }
+        },
+        "type": "object",
+        "required": [
+          "task_id"
+        ],
+        "title": "TaskSubmissionResponseModel",
+        "description": "Response model for task submission."
+      },
+      "TaskUpdateModel": {
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "maxLength": 36,
+            "title": "Task ID",
+            "description": "Unique identifier for the task"
+          },
+          "task_type": {
+            "type": "string",
+            "maxLength": 512,
+            "title": "Task type",
+            "description": "The type of task to execute"
+          },
+          "task_function": {
+            "type": "string",
+            "maxLength": 128,
+            "title": "Function",
+            "description": "The function to execute within the task",
+            "default": ""
+          },
+          "task_function_args": {
+            "type": "object",
+            "title": "Function arguments",
+            "description": "Arguments to supply to the task function.",
+            "default": {}
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status",
+            "title": "Task status",
+            "description": "Status of the task"
+          },
+          "agent_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2048
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agent ID",
+            "description": "Unique identifier of the Agent which updated the task"
+          },
+          "task_comment": {
+            "type": "string",
+            "title": "Comment",
+            "description": "User comments regarding the submitted task",
+            "default": ""
+          },
+          "metrics": {
+            "type": "string",
+            "title": "Task metrics",
+            "description": "Any prometheus formatted metrics that might have been collected during the execution.",
+            "default": ""
+          },
+          "priority": {
+            "type": "integer",
+            "title": "Task priority",
+            "description": "Task priority. 0 is the highest priority."
+          },
+          "metadata": {
+            "type": "object",
+            "title": "Task metadata",
+            "description": "Task metadata (ie: list of extensions, registries etc)"
+          },
+          "labels": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Task labels",
+            "description": "Task labels to steer tasks to specific controllers"
+          },
+          "progress": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TaskProgressModel"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "userid": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2048
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User ID",
+            "description": "Unique identifier of the User who updated the task"
+          },
+          "details": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Details",
+            "description": "Details about the event"
+          }
+        },
+        "type": "object",
+        "required": [
+          "task_id",
+          "task_type",
+          "status"
+        ],
+        "title": "TaskUpdateModel",
+        "description": "Task update information."
+      },
+      "TaskUpdateResponseModel": {
+        "properties": {
+          "should_cancel": {
+            "type": "boolean",
+            "title": "Cancel task",
+            "description": "Returns True if a task has been cancelled in the queue. It will indicate to the agent to interrupt the task."
+          }
+        },
+        "type": "object",
+        "required": [
+          "should_cancel"
+        ],
+        "title": "TaskUpdateResponseModel",
+        "description": "Returned after a task update event."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "_ApiKeyHeader": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-KEY"
+      }
+    }
+  }
+}

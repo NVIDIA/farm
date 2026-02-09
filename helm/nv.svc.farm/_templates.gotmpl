@@ -1,0 +1,30 @@
+{{ define "chart.valuesTable" }}
+{{ if .Sections.Sections }}
+{{ range .Sections.Sections }}
+
+### {{ .SectionName }} Configuration
+
+| Key | Type | Default | Rendered Default | Description |
+|-----|------|---------|------------------|-------------|
+    {{- range .SectionItems }}
+| {{ .Key }} | {{ .Type }} | {{ if .Default }}{{ .Default }}{{ else }}{{ .AutoDefault }}{{ end }} | - | {{ if .Description }}{{ .Description }}{{ else }}{{ .AutoDescription }}{{ end }} |
+    {{- end }}
+{{- end }}
+{{ if .Sections.DefaultSection.SectionItems}}
+
+### {{ .Sections.DefaultSection.SectionName }}
+
+| Key | Type | Default | Rendered Default | Description |
+|-----|------|---------|------------------|-------------|
+    {{- range .Sections.DefaultSection.SectionItems }}
+| {{ .Key }} | {{ .Type }} | {{ if .Default }}{{ .Default }}{{ else }}{{ .AutoDefault }}{{ end }} | - | {{ if .Description }}{{ .Description }}{{ else }}{{ .AutoDescription }}{{ end }} |
+    {{- end }}
+{{ end }}
+{{ else }}
+| Key | Type | Default | Rendered Default | Description |
+|-----|------|---------|------------------|-------------|
+    {{- range .Values }}
+| {{ .Key }} | {{ .Type }} | {{ if .Default }}{{ .Default }}{{ else }}{{ .AutoDefault }}{{ end }} | - | {{ if .Description }}{{ .Description }}{{ else }}{{ .AutoDescription }}{{ end }} |
+    {{- end }}
+{{ end }}
+{{ end }}

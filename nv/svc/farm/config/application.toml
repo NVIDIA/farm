@@ -1,0 +1,193 @@
+[settings]
+
+# ---------------------------------------------------------------------------------------------------------
+[settings.nv.svc.server.http]
+
+http.enabled = true
+host = "127.0.0.1"
+port = 8222
+loop = "auto"
+
+
+# ---------------------------------------------------------------------------------------------------------
+[settings.nv.svc.core.logging]
+
+log_level = "INFO"
+
+
+# ---------------------------------------------------------------------------------------------------------
+[settings.nv.svc.facilities.monitoring.metrics]
+
+export_metrics_to_collector = false
+export_metrics_to_console = false
+collector_url = "opentelemetry.ov.local:8443"
+secure = false
+export_interval_s = 30
+
+
+# ---------------------------------------------------------------------------------------------------------
+[settings.nv.svc.farm.agents]
+
+url_prefix = "/queue/management/agents"
+
+lost_timeout = 300
+check_interval = 120
+farm_tasks_address = "@format http://{this.nv.svc.server.http.host}:{this.nv.svc.server.http.port}{this.nv.svc.farm.tasks.url_prefix}"
+manager_class = "nv.svc.farm.services.agents.facilities.managers.memory.DictAgentManager"
+manager_args = {}
+
+
+# ---------------------------------------------------------------------------------------------------------
+[settings.nv.svc.farm.capacity]
+
+url_prefix = "/capacity"
+manager_class = "nv.svc.farm.services.capacity.managers.settings.SettingsAgentCapacityManager"
+tags = ["capacity"]
+
+[settings.nv.svc.farm.capacity.manager_args]
+capacity_classes = [
+    "nv.svc.farm.services.capacity.GPU",
+    "nv.svc.farm.services.capacity.CPU",
+    "nv.svc.farm.services.capacity.Memory",
+    "nv.svc.farm.services.capacity.OS",
+]
+settings_roots = "nv.svc.farm.services.capacity"
+
+
+# ---------------------------------------------------------------------------------------------------------
+[settings.nv.svc.farm.controller]
+
+url_prefix = "/agent"
+
+task_backend_class = "nv.svc.farm.services.tasks.facilities.tasks.backends.TaskIdDictBackend"
+task_backend_args = {}
+
+bay_controller_class = "nv.svc.farm.services.controller.facilities.bays.OneSlotBay"
+bay_controller_args = {}
+
+job_store_class = "nv.svc.farm.services.jobs.facilities.store.remote.RemoteJobStore"
+job_store_args.jobs_load_endpoint = "@format http://{this.nv.svc.server.http.host}:{this.nv.svc.server.http.port}{this.nv.svc.farm.jobs.url_prefix}/load"
+
+# job_manager_class = "nv.svc.farm.services.jobs.facilities.manager.k8s.KubernetesProcessManager"
+job_manager_class = "nv.svc.farm.services.jobs.facilities.manager.base.ProcessManager"
+job_manager_args.log_upload_endpoint = "@format http://{this.nv.svc.server.http.host}:{this.nv.svc.server.http.port}{this.nv.svc.farm.logs.url_prefix}/upload"
+
+agent_checkin_interval = 60
+fetch_task_idle_delay = 10
+fetch_task_delay = 0.5
+task_checkin_interval = 10
+task_checkin_timeout = 300
+reconcile_task_state = false
+task_reconcile_interval = 3600
+
+labels = []
+public_to_private_source_queue_hostnames = []
+
+service_host_url_format_str = "{service_host}/queue/management"
+
+agents_service_url = "@format http://{this.nv.svc.server.http.host}:{this.nv.svc.server.http.port}{this.nv.svc.farm.agents.url_prefix}"
+tasks_service_url = "@format http://{this.nv.svc.server.http.host}:{this.nv.svc.server.http.port}{this.nv.svc.farm.tasks.url_prefix}"
+
+# ---------------------------------------------------------------------------------------------------------
+[settings.nv.svc.farm.dag]
+url_prefix = "/queue/management/dag"
+
+[settings.nv.svc.farm.dag.database]
+handle = "dag"
+type = "sqlite"
+connection_string = "sqlite:///{FARM_USER_DATA_DIR}/dag.db"
+
+# ---------------------------------------------------------------------------------------------------------
+[settings.nv.svc.farm.dashboard]
+
+url_prefix = "/queue/management/dashboard/"
+starfleet_enabled = false
+starfleet_client_id = ""
+starfleet_login_url = "https://stg.login.nvidia.com"
+
+
+# ---------------------------------------------------------------------------------------------------------
+[settings.nv.svc.farm.jobs]
+
+url_prefix = "/queue/management/jobs"
+api_key = "change-me"
+
+# DirectoryStore defaults to FARM_USER_DATA_DIR / "job-definitions"
+store_class = "nv.svc.farm.services.jobs.facilities.store.directory.DirectoryJobStore"
+store_args = {}
+
+supported_instance_payload_versions = ["1.0"]
+farm_facilities_extensions = ""
+
+agent_controller_protocol = "http"
+agent_controller_host = "@format {this.nv.svc.server.http.host}"
+agent_controller_port = "@format {this.nv.svc.server.http.port}"
+
+[settings.nv.svc.farm.jobs.k8s_manager]
+log_upload_interval = 10
+active_check_delay = 30
+log_check_delay = 15
+jobs_namespace = "ov-farm"
+request_timeout_in_seconds = 60
+list_jobs_limit_per_page = 250
+
+# NOTE: jobs.k8s_manager uses kubernetes.client
+[settings.nv.svc.kubernetes.client]
+load_in_cluster_config = false
+verify_ssl = false
+kube_config_path = ""
+kube_config_context = ""
+
+
+# ---------------------------------------------------------------------------------------------------------
+[settings.nv.svc.farm.logs]
+
+url_prefix = "/queue/management/logs"
+store_class = "nv.svc.farm.services.logs.facilities.memory.MemoryLogStore"
+store_args = {}
+
+
+# ---------------------------------------------------------------------------------------------------------
+[settings.nv.svc.farm.retries]
+
+url_prefix = "/queue/management/retries"
+farm_tasks_address = "@format http://{this.nv.svc.server.http.host}:{this.nv.svc.server.http.port}{this.nv.svc.farm.tasks.url_prefix}"
+retry_limit = 3
+task_max_age = 259200
+task_type_blocklist = []
+task_function_blocklist = []
+
+
+# ---------------------------------------------------------------------------------------------------------
+[settings.nv.svc.farm.settings]
+
+url_prefix = "/queue"
+settings_key = "exposed_settings"
+
+[settings.nv.svc.farm.settings.exposed_settings]
+# a_setting = "value"
+
+
+# ---------------------------------------------------------------------------------------------------------
+[settings.nv.svc.farm.results]
+
+url_prefix = "/queue/management/results"
+manager_class = "nv.svc.farm.services.results.facilities.managers.memory.DictResultManager"
+manager_args = {}
+task_service_url = "@format http://{this.nv.svc.server.http.host}:{this.nv.svc.server.http.port}{this.nv.svc.farm.tasks.url_prefix}"
+result_ttl = 432000  # 5 days in seconds
+
+
+# ---------------------------------------------------------------------------------------------------------
+[settings.nv.svc.farm.tasks]
+
+url_prefix = "/queue/management/tasks"
+
+metrics_collect_interval = 60
+event_handlers = ["nv.svc.farm.services.tasks.facilities.task_events.status.TaskStatusEventHandler", "nv.svc.farm.services.dag.facilities.task_events.DAGTaskEventHandler"]
+event_handler_args.TaskStatusEventHandler.retries_service_url = "@format http://{this.nv.svc.server.http.host}:{this.nv.svc.server.http.port}{this.nv.svc.farm.retries.url_prefix}"
+event_handler_args.DAGTaskEventHandler.dag_service_url = "@format http://{this.nv.svc.server.http.host}:{this.nv.svc.server.http.port}{this.nv.svc.farm.dag.url_prefix}"
+
+[settings.nv.svc.farm.tasks.dbs.task-persistence]
+# NOTE: 'FARM_USER_DATA_DIR' token only works for the connection_string setting.
+connection_string = "sqlite:///{FARM_USER_DATA_DIR}/task-management.db"

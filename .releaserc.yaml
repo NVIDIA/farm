@@ -1,0 +1,74 @@
+branches:
+- main
+tagFormat: ${version}
+plugins:
+  - "@semantic-release/changelog"
+  - - "@semantic-release/commit-analyzer"
+    - preset: 'conventionalcommits'
+      releaseRules:
+      - type: 'feat'
+        release: 'minor'
+      - type: 'fix'
+        release: 'patch'
+      - type: 'chore'
+        release: false
+      - type: 'docs'
+        release: false
+      - type: 'ci'
+        release: false
+      - type: 'refactor'
+        release: 'minor'
+      - type: 'breaking'
+        release: 'major'
+      - type: 'migration'
+        release: 'patch'
+      parserOpts:
+        noteKeywords: ['BREAKING CHANGE', 'BREAKING CHANGES']
+  - - "@semantic-release/release-notes-generator"
+    - preset: "conventionalcommits"
+      presetConfig:
+        types:
+          - type: 'feat'
+            section: '✨ Features ✨'
+            hidden: false
+          - type: 'fix'
+            section: '🐛 Bug Fixes 🐛'
+            hidden: false
+          - type: 'chore'
+            section: 'Chores'
+            hidden: false
+          - type: 'docs'
+            section: '📝 Documentation 📝'
+            hidden: false
+          - type: 'style'
+            section: 'Styles'
+            hidden: true
+          - type: 'refactor'
+            section: 'Code Refactoring'
+            hidden: false
+          - type: 'perf'
+            section: 'Performance Improvements'
+            hidden: false
+          - type: 'test'
+            section: '✅ Tests ✅'
+            hidden: true
+          - type: 'ci'
+            section: '🛠 CI Improvements 🛠'
+            hidden: false
+          - type: 'migration'
+            section: '🛠 Migration 🛠'
+            hidden: false
+      writerOpts:
+        commitsSort: ['subject', 'scope']
+  - - "semantic-release-pypi"
+    - pypiPublish: false
+  - - "semantic-release-helm3"
+    - chartPath: "helm/nv.svc.farm"
+      skipRegistryLogin: true
+  - - "@semantic-release/git"
+    - message: "chore(release): ${nextRelease.version} - nv.svc.farm\n\n${nextRelease.notes}\n\nSigned-off-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+      assets:
+      - pyproject.toml
+      - CHANGELOG.md
+      - helm/nv.svc.farm/Chart.yaml
+  - "@semantic-release/github"

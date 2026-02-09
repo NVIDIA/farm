@@ -1,0 +1,2 @@
+npx --no-install lint-staged --cwd ./dashboard-ui --allow-empty
+make lint

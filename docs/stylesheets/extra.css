@@ -1,0 +1,33 @@
+/*
+SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+*/
+
+:root {
+ 
+  --md-primary-fg-color:               #000000;
+  --md-primary-bg-color:                #FFFF;
+  --md-accent-fg-color:                #008564;
+  --md-primary-bg-color--light:        hsla(0, 0%, 100%, 0.7);
+  --md-default-fg-color--light:       #008564;
+}
+
+.md-typeset td {
+  overflow-wrap: anywhere;
+}
+
+.md-typeset a {
+  color: #008564;
+}
+.md-nav__item .md-nav__link--active, .md-nav__item .md-nav__link--active code {
+  color: #008564;
+}
+
+.explicit-col-width th:nth-child(1) { width: 30%; }
+.explicit-col-width th:nth-child(2) { width: 5%; }
+.explicit-col-width th:nth-child(3) { width: 20%; }
+.explicit-col-width th:nth-child(4) { width: 45%; }
+
+.nvidia-icon {
+  color: #008564
+}

@@ -1,0 +1,46 @@
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: farm
+      MYSQL_DATABASE: farm
+      MYSQL_USER: farm
+      MYSQL_PASSWORD: farm
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pfarm"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  farm:
+    image: ${FARM_IMAGE:-}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8222:8222"
+    environment:
+      # Bind to all interfaces so it's accessible from host
+      - NV__SVC__SERVER__HTTP__HOST=0.0.0.0
+      # Use MySQL for task persistence
+      - NV__SVC__FARM__TASKS__DBS__TASK_PERSISTENCE__CONNECTION_STRING=mysql+aiomysql://farm:farm@mysql:3306/farm
+      # Use MySQL for DAG
+      - NV__SVC__FARM__DAG__DATABASE__TYPE=mysql
+      - NV__SVC__FARM__DAG__DATABASE__CONNECTION_STRING=mysql+aiomysql://farm:farm@mysql:3306/farm
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8222/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  mysql-data:

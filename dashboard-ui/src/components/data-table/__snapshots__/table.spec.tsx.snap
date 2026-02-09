@@ -1,0 +1,311 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`table.tsx > sorting > should sort created in ascending order 1`] = `
+"{
+  "sortDirection": "ascending",
+  "sortColumnId": "CREATED",
+  "columns": [
+    "Nov 01, 2024, 00:00:00 GMT",
+    "Nov 02, 2024, 00:00:00 GMT",
+    "Nov 02, 2024, 10:00:00 GMT",
+    "Nov 03, 2024, 00:00:00 GMT",
+    "Nov 03, 2024, 10:00:00 GMT",
+    "Nov 03, 2024, 20:00:00 GMT",
+    "Nov 04, 2024, 00:00:00 GMT",
+    "Nov 04, 2024, 10:00:00 GMT",
+    "Nov 06, 2024, 00:00:00 GMT",
+    "Nov 06, 2024, 00:00:00 GMT",
+    "Nov 07, 2024, 00:00:00 GMT",
+    "Nov 07, 2024, 10:00:00 GMT",
+    "Nov 08, 2024, 00:00:00 GMT",
+    "Nov 08, 2024, 10:00:00 GMT",
+    "Nov 09, 2024, 00:00:00 GMT",
+    "Nov 09, 2024, 10:00:00 GMT",
+    "Nov 10, 2024, 00:00:00 GMT",
+    "Nov 10, 2024, 10:00:00 GMT",
+    "Nov 13, 2024, 00:00:00 GMT",
+    "Nov 15, 2024, 00:00:00 GMT",
+    "Nov 18, 2024, 00:00:00 GMT",
+    "Nov 19, 2024, 00:00:00 GMT"
+  ]
+}"
+`;
+
+exports[`table.tsx > sorting > should sort created in descending order 1`] = `
+"{
+  "sortDirection": "descending",
+  "sortColumnId": "CREATED",
+  "columns": [
+    "Nov 19, 2024, 00:00:00 GMT",
+    "Nov 18, 2024, 00:00:00 GMT",
+    "Nov 15, 2024, 00:00:00 GMT",
+    "Nov 13, 2024, 00:00:00 GMT",
+    "Nov 10, 2024, 10:00:00 GMT",
+    "Nov 10, 2024, 00:00:00 GMT",
+    "Nov 09, 2024, 10:00:00 GMT",
+    "Nov 09, 2024, 00:00:00 GMT",
+    "Nov 08, 2024, 10:00:00 GMT",
+    "Nov 08, 2024, 00:00:00 GMT",
+    "Nov 07, 2024, 10:00:00 GMT",
+    "Nov 07, 2024, 00:00:00 GMT",
+    "Nov 06, 2024, 00:00:00 GMT",
+    "Nov 06, 2024, 00:00:00 GMT",
+    "Nov 04, 2024, 10:00:00 GMT",
+    "Nov 04, 2024, 00:00:00 GMT",
+    "Nov 03, 2024, 20:00:00 GMT",
+    "Nov 03, 2024, 10:00:00 GMT",
+    "Nov 03, 2024, 00:00:00 GMT",
+    "Nov 02, 2024, 10:00:00 GMT",
+    "Nov 02, 2024, 00:00:00 GMT",
+    "Nov 01, 2024, 00:00:00 GMT"
+  ]
+}"
+`;
+
+exports[`table.tsx > sorting > should sort description in ascending order 1`] = `
+"{
+  "sortDirection": "ascending",
+  "sortColumnId": "DESCRIPTION",
+  "columns": [
+    "Animal price they practice act.",
+    "Anyone score option century why.",
+    "Big road factor style face wife prepare.",
+    "Billion study arm degree try.",
+    "Detail toward PM money law.",
+    "During family body.",
+    "Employee ok hospital security view necessary natural.",
+    "Fact less goal vote box change.",
+    "Hard impact sense agree foreign.",
+    "Help recognize owner add.",
+    "Here safe company whatever current.",
+    "List then simply why cold.",
+    "Play brother history study class sister.",
+    "Policy evening purpose current health do tell.",
+    "Provide cultural over group world.",
+    "Response each cut black.",
+    "Risk man as rich.",
+    "Similar so cost discussion agent.",
+    "Son already local.",
+    "Stop explain history continue pull morning view account.",
+    "Threat within evidence four on American without.",
+    "Trouble appear face particular save right more customer."
+  ]
+}"
+`;
+
+exports[`table.tsx > sorting > should sort description in descending order 1`] = `
+"{
+  "sortDirection": "descending",
+  "sortColumnId": "DESCRIPTION",
+  "columns": [
+    "Trouble appear face particular save right more customer.",
+    "Threat within evidence four on American without.",
+    "Stop explain history continue pull morning view account.",
+    "Son already local.",
+    "Similar so cost discussion agent.",
+    "Risk man as rich.",
+    "Response each cut black.",
+    "Provide cultural over group world.",
+    "Policy evening purpose current health do tell.",
+    "Play brother history study class sister.",
+    "List then simply why cold.",
+    "Here safe company whatever current.",
+    "Help recognize owner add.",
+    "Hard impact sense agree foreign.",
+    "Fact less goal vote box change.",
+    "Employee ok hospital security view necessary natural.",
+    "During family body.",
+    "Detail toward PM money law.",
+    "Billion study arm degree try.",
+    "Big road factor style face wife prepare.",
+    "Anyone score option century why.",
+    "Animal price they practice act."
+  ]
+}"
+`;
+
+exports[`table.tsx > sorting > should sort id in ascending order 1`] = `
+"{
+  "sortDirection": "ascending",
+  "sortColumnId": "ID",
+  "columns": [
+    "013bc4c4-7403-48ea-840b-232c9f34e878",
+    "0e038173-5281-4535-9ea1-2e5b4791099e",
+    "1769a527-d40b-4b03-bfda-bff53d6694ff",
+    "1dcb958b-7d3c-4d8a-92ac-dc7fa4214c1f",
+    "28fc3ea0-3db0-4a95-a224-827a2dde42c1",
+    "2af5b1e3-a7d7-4f5c-9d45-c6f5448c0ec6",
+    "2c341542-7ef2-4b44-9620-695ac8584baf",
+    "577b34c9-fd75-40f5-80b2-f0fb6a4c5c33",
+    "5c465da9-c832-4eea-ac3f-c314fa1efdfb",
+    "650f7071-2abb-491f-a522-a0dd1d71ab79",
+    "693ed2ac-e2d8-40b7-a5e2-99cb966e965c",
+    "74a69903-d6a1-4907-9993-79a5c265dd3f",
+    "7e3c54b9-0569-4bfa-b956-4c61916471fd",
+    "854c7362-804a-447e-ac93-c16a95b70e3c",
+    "8a50c6fd-69a1-4d7a-817c-8540bac7133a",
+    "b0d33a60-b297-4b79-b9f5-bfb14d1fb9a5",
+    "b3cdbeb8-6549-40c0-af07-49f36f04420c",
+    "c3288447-22af-4359-a9a9-784283df78d1",
+    "de316e6d-2c5e-4a27-bc16-50d1b3edabcd",
+    "f030eafd-e2b0-4958-99f4-ae0ae0779d03",
+    "f496dffa-e080-4f88-ad6d-2776e4d6bd4e",
+    "f8e5d0be-32e0-4afe-a537-eee414ddd9fe"
+  ]
+}"
+`;
+
+exports[`table.tsx > sorting > should sort id in descending order 1`] = `
+"{
+  "sortDirection": "descending",
+  "sortColumnId": "ID",
+  "columns": [
+    "f8e5d0be-32e0-4afe-a537-eee414ddd9fe",
+    "f496dffa-e080-4f88-ad6d-2776e4d6bd4e",
+    "f030eafd-e2b0-4958-99f4-ae0ae0779d03",
+    "de316e6d-2c5e-4a27-bc16-50d1b3edabcd",
+    "c3288447-22af-4359-a9a9-784283df78d1",
+    "b3cdbeb8-6549-40c0-af07-49f36f04420c",
+    "b0d33a60-b297-4b79-b9f5-bfb14d1fb9a5",
+    "8a50c6fd-69a1-4d7a-817c-8540bac7133a",
+    "854c7362-804a-447e-ac93-c16a95b70e3c",
+    "7e3c54b9-0569-4bfa-b956-4c61916471fd",
+    "74a69903-d6a1-4907-9993-79a5c265dd3f",
+    "693ed2ac-e2d8-40b7-a5e2-99cb966e965c",
+    "650f7071-2abb-491f-a522-a0dd1d71ab79",
+    "5c465da9-c832-4eea-ac3f-c314fa1efdfb",
+    "577b34c9-fd75-40f5-80b2-f0fb6a4c5c33",
+    "2c341542-7ef2-4b44-9620-695ac8584baf",
+    "2af5b1e3-a7d7-4f5c-9d45-c6f5448c0ec6",
+    "28fc3ea0-3db0-4a95-a224-827a2dde42c1",
+    "1dcb958b-7d3c-4d8a-92ac-dc7fa4214c1f",
+    "1769a527-d40b-4b03-bfda-bff53d6694ff",
+    "0e038173-5281-4535-9ea1-2e5b4791099e",
+    "013bc4c4-7403-48ea-840b-232c9f34e878"
+  ]
+}"
+`;
+
+exports[`table.tsx > sorting > should sort name in ascending order 1`] = `
+"{
+  "sortDirection": "ascending",
+  "sortColumnId": "NAME",
+  "columns": [
+    "Amy Bradford",
+    "Casey Anderson",
+    "Chloe Flores",
+    "Dr. Melissa Roberts DDS",
+    "Erica Campos",
+    "Heather Brown",
+    "Jeffrey Terry",
+    "Jon Chavez",
+    "Jonathan Taylor",
+    "Karen Patterson",
+    "Kristin Carney",
+    "Mary Cook",
+    "Michael Gray",
+    "Michelle Mendoza",
+    "Mrs. Cynthia Bennett",
+    "Paul Mitchell",
+    "Rebekah Fox",
+    "Robert Keith",
+    "Sonia Rogers",
+    "Vincent Ramirez",
+    "Warren Flynn",
+    "William Miller"
+  ]
+}"
+`;
+
+exports[`table.tsx > sorting > should sort name in descending order 1`] = `
+"{
+  "sortDirection": "descending",
+  "sortColumnId": "NAME",
+  "columns": [
+    "William Miller",
+    "Warren Flynn",
+    "Vincent Ramirez",
+    "Sonia Rogers",
+    "Robert Keith",
+    "Rebekah Fox",
+    "Paul Mitchell",
+    "Mrs. Cynthia Bennett",
+    "Michelle Mendoza",
+    "Michael Gray",
+    "Mary Cook",
+    "Kristin Carney",
+    "Karen Patterson",
+    "Jonathan Taylor",
+    "Jon Chavez",
+    "Jeffrey Terry",
+    "Heather Brown",
+    "Erica Campos",
+    "Dr. Melissa Roberts DDS",
+    "Chloe Flores",
+    "Casey Anderson",
+    "Amy Bradford"
+  ]
+}"
+`;
+
+exports[`table.tsx > sorting > should sort status in ascending order 1`] = `
+"{
+  "sortDirection": "ascending",
+  "sortColumnId": "STATUS",
+  "columns": [
+    "completed",
+    "completed",
+    "completed",
+    "failed",
+    "failed",
+    "failed",
+    "failed",
+    "failed",
+    "failed",
+    "failed",
+    "in_progress",
+    "in_progress",
+    "in_progress",
+    "in_progress",
+    "pending",
+    "pending",
+    "pending",
+    "pending",
+    "started",
+    "started",
+    "started",
+    "started"
+  ]
+}"
+`;
+
+exports[`table.tsx > sorting > should sort status in descending order 1`] = `
+"{
+  "sortDirection": "descending",
+  "sortColumnId": "STATUS",
+  "columns": [
+    "started",
+    "started",
+    "started",
+    "started",
+    "pending",
+    "pending",
+    "pending",
+    "pending",
+    "in_progress",
+    "in_progress",
+    "in_progress",
+    "in_progress",
+    "failed",
+    "failed",
+    "failed",
+    "failed",
+    "failed",
+    "failed",
+    "failed",
+    "completed",
+    "completed",
+    "completed"
+  ]
+}"
+`;

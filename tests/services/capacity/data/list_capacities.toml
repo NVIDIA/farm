@@ -1,0 +1,6 @@
+[settings.farm.test.root."foo.bar"]
+strict = true
+
+[settings.farm.test.root."foo.bar.limit"]
+strict = false
+capacity = 10

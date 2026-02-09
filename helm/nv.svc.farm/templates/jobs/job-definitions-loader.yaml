@@ -1,0 +1,79 @@
+{{- $mergedJobsSvc := mergeOverwrite (deepCopy .Values.defaults) (deepCopy .Values.global) (deepCopy (index $.Values.apps "jobs")) -}}
+{{- $ctx := dict "svcName" "jobs" "mergedSvc" $mergedJobsSvc "root" $ "Chart" .Chart "Release" .Release -}}
+{{- if $mergedJobsSvc.enabled -}}
+{{- if $mergedJobsSvc.serviceConfig.load_default_job_definitions -}}
+{{- $imagePullPolicy :=  $mergedJobsSvc.image.pullPolicy -}}
+{{- $imageRepo :=  $mergedJobsSvc.initImage.repository -}}
+{{- $imageTag :=  $mergedJobsSvc.initImage.tag -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job-definitions-loader
+  labels:
+    {{- include "nv-svc-farm.app.labels" $ctx | nindent 4 }}
+  annotations:
+    # Without the hook annotation, the job is considered part of the release.
+    "helm.sh/hook-delete-policy": before-hook-creation
+    "helm.sh/hook": post-install,post-upgrade
+spec:
+  backoffLimit: 1
+  parallelism: 1
+  completions: 1
+  activeDeadlineSeconds: 300 # 5 minute maximum time allowed to run before terminating
+  ttlSecondsAfterFinished: 600 # cleanup after 10 minutes
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/jobs/configmap-job-definitions.yaml") . | sha256sum }}
+        {{- with $mergedJobsSvc.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "nv-svc-farm.app.labels" $ctx | nindent 8 }}
+        sidecar.istio.io/inject: "false"
+    spec:
+      serviceAccountName: {{ include "nv-svc-farm.app.serviceAccountName" $ctx }}
+      restartPolicy: Never
+      securityContext:
+        {{- toYaml $mergedJobsSvc.podSecurityContext | nindent 8 }}
+      containers:
+        - name: load-job-definitions
+          image: "{{ $imageRepo }}:{{ $imageTag | default .Chart.AppVersion }}"
+          command: ['sh', '-c', '/config/load_job_definitions.sh']
+          imagePullPolicy: {{ $imagePullPolicy }}
+          env:
+          - name: JOBS_API_URL
+            value: "{{ include "nv-svc-farm.app.connection-string" $ctx }}"
+          - name: JOB_DEFINITIONS_DIR
+            value: /config
+          - name: JOBS_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: "{{ include "nv-svc-farm.app.fullname" $ctx }}"
+                key: api_key
+          volumeMounts:
+            - name: job-definitions
+              mountPath: /config
+      initContainers:
+        - name: wait-for-jobs-svc
+          image: "{{ $mergedJobsSvc.initImage.repository }}:{{ $mergedJobsSvc.initImage.tag }}"
+          command: ['sh', '-c', 'echo -e "Waiting for Jobs service"; while ! nc -z -w 2 {{ include "nv-svc-farm.app.connection-host" $ctx }} {{ include "nv-svc-farm.app.port" $ctx }}; do sleep 1; printf "-"; done; echo -e " >> Jobs service is ready.";']
+      volumes:
+        - name: job-definitions
+          configMap:
+            name: {{ $.Release.Name }}-job-definitions
+            defaultMode: 0777
+      {{- with $mergedJobsSvc.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $mergedJobsSvc.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $mergedJobsSvc.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
+{{- end }}

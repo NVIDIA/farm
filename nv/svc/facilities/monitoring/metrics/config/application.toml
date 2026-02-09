@@ -1,0 +1,14 @@
+[settings]
+
+nv.svc.facilities.monitoring.metrics.enable_metrics_middleware = true
+nv.svc.facilities.monitoring.metrics.export_metrics_to_collector = false
+nv.svc.facilities.monitoring.metrics.export_metrics_to_console = false
+nv.svc.facilities.monitoring.metrics.collector_url = "opentelemetry.ov.local:8443"
+nv.svc.facilities.monitoring.metrics.secure = false
+nv.svc.facilities.monitoring.metrics.export_interval_s = 10
+
+nv.svc.facilities.monitoring.metrics.show_metrics_endpoint = true
+nv.svc.facilities.monitoring.metrics.metrics_endpoint_path = "/metrics"
+nv.svc.facilities.monitoring.metrics.mount_metrics_endpoint_separate_http_server = false
+nv.svc.facilities.monitoring.metrics.separate_http_server_port = 8081
+

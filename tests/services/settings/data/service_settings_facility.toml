@@ -1,0 +1,15 @@
+[settings.nv.svc.server.http]
+http.enabled = false
+
+[settings.nv.svc.farm.settings]
+url_prefix = "/queue"
+settings_key = "exposed_settings"
+
+[settings.nv.svc.farm.settings.exposed_settings]
+bool = true
+integer = 42
+string = "lorem ipsum"
+string_array = ["string_one", "string_two"]
+
+[settings.nv.svc.farm.settings.exposed_settings.dict]
+key = "value"

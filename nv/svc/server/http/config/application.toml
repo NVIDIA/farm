@@ -1,0 +1,33 @@
+
+[settings]
+nv.svc.server.http.http.enabled = false
+nv.svc.server.http.host = "0.0.0.0"
+# Server will try and bind to port, if not available and this is true it will select a random port within the 8000 to 8100 range.
+nv.svc.server.http.port = 8011
+nv.svc.server.http.loop = "auto"
+nv.svc.server.http.allow_port_range = true
+nv.svc.server.http.log_level = "error"
+nv.svc.server.http.enable_access_logs = false
+
+# HTTPS Config
+nv.svc.server.http.https.enabled = false
+nv.svc.server.http.https.port = 8433
+nv.svc.server.http.https.host = "0.0.0.0"
+nv.svc.server.http.https.loop = "auto"
+nv.svc.server.http.https.log_level = "error"
+nv.svc.server.http.https.enable_access_logs = false
+
+# SSL Config. Only used when https is enabled.
+nv.svc.server.http.ssl.ssl_keyfile = ""
+nv.svc.server.http.ssl.ssl_certfile = ""
+nv.svc.server.http.ssl.ssl_version = -1
+nv.svc.server.http.ssl.ssl_cert_reqs = -1
+nv.svc.server.http.ssl.ssl_ca_certs = ""
+nv.svc.server.http.ssl.ssl_ciphers = "TLSv1"
+
+# CORS Config, Only used when CORS is enabled.
+nv.svc.server.http.cors.enabled = false
+nv.svc.server.http.cors.allow_origins = []
+nv.svc.server.http.cors.allow_credentials = false
+nv.svc.server.http.cors.allow_methods = []
+nv.svc.server.http.cors.allow_headers = []

@@ -1,0 +1,22 @@
+{{- range $svcName, $originalSvc := .Values.apps }}
+{{- $svc := mergeOverwrite (deepCopy $.Values.defaults) (deepCopy $.Values.global) (deepCopy $originalSvc) }}
+{{- $ctx := (dict "svcName" $svcName "svc" $svc "root" $) }}
+{{- if (and $svc.serviceMonitor.enabled  $svc.enabled ) }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "nv-svc-farm.app.fullname" $ctx }}
+  namespace: {{ default $.Release.Namespace $svc.serviceMonitor.prometheusNamespace }}
+  labels:
+    {{- include "nv-svc-farm.app.labels" $ctx | nindent 4 }}
+    {{- $svc.serviceMonitor.extraLabels | toYaml | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "nv-svc-farm.app.selectorLabels" $ctx | nindent 6 }}
+  endpoints:
+  - port: {{ $svc.service.targetPortName }}
+    interval: 15s
+---
+{{- end }}
+{{- end }}

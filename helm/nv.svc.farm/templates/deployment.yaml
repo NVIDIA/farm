@@ -1,0 +1,84 @@
+
+
+
+{{- $g := $ }}
+{{- range $svcName, $originalSvc := .Values.apps }}
+{{- $svc := mergeOverwrite (deepCopy $.Values.defaults) (deepCopy $.Values.global)  (deepCopy $originalSvc) }}
+{{- $ctx := (dict "svcName" $svcName "svc" $svc "Values" $.Values "Template" $.Template "Release" $.Release "Chart" $.Chart "root" $g) }}
+{{- if $svc.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "nv-svc-farm.app.fullname" $ctx }}
+  labels:
+    {{- include "nv-svc-farm.app.labels" $ctx | nindent 4 }}
+spec:
+  {{- if not $svc.autoscaling.enabled }}
+  replicas: {{ $svc.replicaCount }}
+  {{- end }}
+  revisionHistoryLimit: {{ $svc.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      {{- include "nv-svc-farm.app.selectorLabels" $ctx | nindent 6 }}
+  template:
+    metadata:
+      annotations: 
+      {{- include "nv-svc-farm.app.cfgchecksum" $ctx | nindent 8 }}
+      {{- if $svc.configMapChecksumTemplate }}
+      {{- include $svc.configMapChecksumTemplate $ctx | nindent 8 }}
+      {{- end }}
+      {{- with ($svc.podAnnotations) }}
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "nv-svc-farm.app.labels" $ctx | nindent 8 }}
+        {{- with $svc.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ include "nv-svc-farm.app.serviceAccountName" $ctx }}
+      securityContext:
+        {{- toYaml $svc.podSecurityContext | nindent 8 }}
+      initContainers:
+        {{- include "nv-svc-farm.app.waitForService" $ctx | nindent 8 }}
+        {{- range $svc.additionalInitContainerTemplates -}}
+        {{- include . $ctx | indent 8 }}
+        {{- end }}
+      containers:
+        - name: {{ default $svcName $svc.image.containerName }}
+          securityContext:
+            {{- toYaml $svc.securityContext | nindent 12 }}
+          image: "{{ $svc.image.repository }}:{{ $svc.image.tag | default $.Chart.AppVersion }}"
+          imagePullPolicy: {{ $svc.image.pullPolicy }}
+          command: 
+          {{- (tpl ($svc.image.cmd | toYaml) $ctx ) | nindent 12 }}
+          args: 
+          {{- (tpl ($svc.image.args | toYaml) $ctx ) | nindent 12 }}
+          env: 
+          {{- include "nv-svc-farm.app.envvars" $ctx | nindent 12 }}
+          ports:
+            - name: {{ $svc.service.targetPortName }}
+              containerPort: {{ $svc.service.containerPort }}
+              protocol: {{ $svc.service.protocol }}
+          {{- toYaml $svc.probes | nindent 10 }}
+          volumeMounts:
+          {{- include "nv-svc-farm.app.volumeMounts" $ctx | nindent 12 }}
+          resources:
+            {{- toYaml $svc.resources | nindent 12 }}
+      volumes:
+        {{- include "nv-svc-farm.app.volumes" $ctx | nindent 8 }}
+      {{- with $svc.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $svc.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $svc.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+{{- end }}
+{{- end }}

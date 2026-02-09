@@ -1,0 +1,15 @@
+{
+    "name": "@nve/styles",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Local copy of @nve/styles bundle (bundles/index.css)",
+    "type": "module",
+    "main": "bundles/index.css",
+    "files": [
+        "bundles/"
+    ],
+    "exports": {
+        ".": "./bundles/index.css",
+        "./bundles/*": "./bundles/*"
+    }
+}

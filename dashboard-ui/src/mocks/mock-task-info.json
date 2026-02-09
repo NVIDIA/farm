@@ -1,0 +1,70 @@
+{
+    "task_id": "9be13e77-91d3-4a51-9470-3087d3250c7c",
+    "task_type": "test",
+    "task_args": {},
+    "task_function": "test",
+    "task_function_args": {
+        "usd_path": "omniverse://...",
+        "collect_dir": "...",
+        "s3_bucket": "...",
+        "aws_profile": "..."
+    },
+    "task_requirements": {},
+    "status": "finished",
+    "userid": "...",
+    "task_comment": "Collecting omniverse://...",
+    "task_details": "Here are some details about this task",
+    "progress": {
+        "current_step_index": 75,
+        "total_step_count": 94,
+        "progress": 0.7978723404255319,
+        "status_message": null,
+        "time_remaining": 0.0
+    },
+    "task_submission_time": 1732076042,
+    "priority": 25,
+    "metadata": {
+        "dependants": [
+            {
+                "source_queue": "https://...",
+                "task_ids": [
+                    "017252a5-26ef-4582-9fa1-917032e9777e",
+                    "a0be92a8-6049-4cdf-99ba-3ceaa4a91d38",
+                    "4475f2de-178e-4865-b296-3393e620d48a",
+                    "1c3b7ce3-9e94-4634-a377-deb9322627ae",
+                    "6b1efebd-66de-4d34-8e46-236207c4ab3f",
+                    "2640a93e-a661-4a9e-8219-01d37694f68e",
+                    "f8c9ee3e-f123-4733-8878-5941b38cbca7",
+                    "04ab4ed1-3895-4e94-b090-d606339922c0",
+                    "3c1fa938-c6b8-4c2a-8497-7a8ecaa393f9",
+                    "ed991071-ffa9-4177-8c4c-f94385d6b7e0",
+                    "ff08bc2a-2f74-41bb-a480-56a37f0e2c24",
+                    "b829d4ee-9c36-4098-b022-0ddd076b6885",
+                    "25abd586-d790-47ed-bc84-ed61a2b8ac6e",
+                    "4980cfff-4ef9-46fc-92c4-6eaf91c88eb3",
+                    "c4c50e58-13cf-4744-a9a6-e7fa614ae63e",
+                    "6e760d05-e278-4b6a-ade1-0b1871e41e46",
+                    "01f6dcf4-ffd0-4c8d-8bcf-7c5c905fa6e3",
+                    "91e7563d-cac1-415f-ab62-0bcc29271a0a",
+                    "3a9236c0-02c0-4265-8d88-8c7ec36df9ab",
+                    "88c439b6-8e30-49c5-a217-2f8c977bde22",
+                    "39b5b0df-fffe-4c6d-be9a-3ffda3858578",
+                    "dcba567b-b7da-4baa-8f45-12dab5461c30",
+                    "420f9e04-4a32-4a3c-8255-153cb140273b",
+                    "fda54091-57fa-4cbd-952a-fc20fc115afa",
+                    "c1cea1e0-24f2-4633-b889-71fbedc797b8",
+                    "2fdf0045-e2a6-469b-99fd-796c666ace23",
+                    "133270a2-efff-4a6c-ab62-5f374fce1cf9",
+                    "1a5e2255-feca-437e-ad03-9e9dbbc4ed2d"
+                ],
+                "task_type": "...",
+                "task_function": "render.run"
+            }
+        ],
+        "original_submitter": "...",
+        "batches": {
+            "batch_id": "123"
+        }
+    },
+    "labels": ["potato", "gravy", "spaghetti", "cheese"]
+}

@@ -1,0 +1,27 @@
+{
+    "user": "local-user",
+    "task_type": "wordctl",
+    "task_comment": "store-data-node",
+    "task_args": {
+        "subcommand": "store",
+        "output_node": "store-data-node",
+        "text": "A Quick Brown Fox Jumped Over The Lazy Dog"
+    },
+    "metadata": {
+        "_retry": {
+            "is_retryable": false
+        }
+    },
+    "task_requirements": {
+        "env": [
+            {
+                "name": "OV_FARM_TASKS_ENDPOINT",
+                "value": "http://farm-tasks.farm.svc.cluster.local/queue/management/tasks"
+            },
+            {
+                "name": "OV_FARM_RESULTS_ENDPOINT",
+                "value": "http://farm-results.farm.svc.cluster.local/queue/management/results"
+            }
+        ]
+    }
+}

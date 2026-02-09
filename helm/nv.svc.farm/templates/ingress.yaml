@@ -1,0 +1,78 @@
+{{- range $svcName, $originalSvc := .Values.apps }}
+{{- $svc := mergeOverwrite (deepCopy $.Values.defaults) (deepCopy $.Values.global) (deepCopy $originalSvc) }}
+{{- $ctx := (dict "svcName" $svcName "svc" $svc "Values" $.Values "Template" $.Template "Release" $.Release "Chart" $.Chart "root" $) }}
+{{- if and $svc.enabled $svc.ingress.enabled }}
+{{- $fullName := include "nv-svc-farm.app.fullname" $ctx }}
+{{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
+apiVersion: networking.k8s.io/v1
+{{- else if semverCompare ">=1.14-0" $.Capabilities.KubeVersion.GitVersion }}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "nv-svc-farm.app.labels" $ctx | nindent 4 }}
+  {{- with $svc.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if $svc.ingress.ingressClassName }}
+  ingressClassName: {{ $svc.ingress.ingressClassName }}
+  {{- end }}
+  {{- if $svc.ingress.tls }}
+  tls:
+    {{- range $svc.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- $path := (default $svc.ingress.path $svc.serviceConfig.url_prefix) -}}
+    {{- $hostInput := $svc.ingress.host -}}
+    {{- if $hostInput }}
+    # Root host routes to each service under its URL prefix (e.g., farm.BASE/queue/management/<svc>)
+    - host: {{ printf "farm.%s" (trimPrefix "farm." $hostInput) | quote }}
+      http:
+        paths:
+          - path: {{ $path | quote }}
+            pathType: {{ $svc.ingress.pathType | quote }}
+            backend:
+              service:
+                name: {{ $fullName | quote }}
+                port:
+                  number: {{ $svc.service.port }}
+    {{- if (default false $svc.ingress.enableServiceHostRoutes) }}
+    # Service-specific host routes root (/) to the service (e.g., <svc>.BASE/)
+    - host: {{ printf "%s.%s" $svcName (trimPrefix "farm." $hostInput) | quote }}
+      http:
+        paths:
+          - path: "/"
+            pathType: {{ $svc.ingress.pathType | quote }}
+            backend:
+              service:
+                name: {{ $fullName | quote }}
+                port:
+                  number: {{ $svc.service.port }}
+    {{- end }}
+    {{- else }}
+    - host: {{ $svc.ingress.host | quote }}
+      http:
+        paths:
+          - path: {{ $path | quote }}
+            pathType: {{ $svc.ingress.pathType | quote }}
+            backend:
+              service:
+                name: {{ $fullName | quote }}
+                port:
+                  number: {{ $svc.service.port }}
+    {{- end }}
+---
+{{- end }}
+{{- end }}

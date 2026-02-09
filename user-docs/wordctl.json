@@ -1,0 +1,18 @@
+{
+    "name": "wordctl",
+    "job_type": "base",
+    "command": "python3",
+    "args": ["/home/rpowers/repos/omniverse/microservices/farm/nv.svc.farm/user-docs/wordctl/wordctl.py"],
+    "allowed_args": {
+        "subcommand": { "arg": "0" },
+        "text": { "arg": "1" },
+        "input_node": { "arg": "--input-node", "separator": " " },
+        "output_node": { "arg": "--output-node", "separator": " " },
+        "input_node_list": { "arg": "--input-node-list", "separator": " " },
+        "error": { "arg": "--error" },
+        "random_error": { "arg": "--random-error" },
+        "error_message": { "arg": "--error-message", "separator": " " }
+    },
+    "success_return_codes": [0],
+    "working_directory": "."
+}

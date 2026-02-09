@@ -1,0 +1,15 @@
+docs:
+  - nv.svc.farm:
+      config_funcs:
+      - services.agents.config.FarmAgentsConfig
+      - services.capacity.config.FarmCapacityConfig
+      - services.controller.config.FarmControllerConfig
+      - services.dag.config.FarmDAGConfig
+      - services.dashboard.config.FarmDashboardConfig
+      - services.jobs.config.FarmJobsConfig
+      - services.logs.config.FarmLogsConfig
+      - services.results.config.FarmResultsConfig
+      - services.retries.config.FarmRetriesConfig
+      - services.settings.config.FarmSettingsConfig
+      - services.tasks.config.FarmTasksConfig
+

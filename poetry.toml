@@ -1,0 +1,9 @@
+[repositories.nvidia-ct-omniverse-mirror]
+url = "https://urm.nvidia.com/artifactory/api/pypi/ct-omniverse-mirror-pypi"
+
+[repositories.nvidia-ct-omniverse-local]
+url = "https://urm.nvidia.com/artifactory/api/pypi/ct-omniverse-pypi-local"
+
+[virtualenvs]
+create = true
+in-project = true

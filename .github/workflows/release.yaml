@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  determine-version:
+    name: Determine Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Extract version from tag
+        id: version
+        run: echo "version=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+
+  backend:
+    name: Backend
+    needs: determine-version
+    uses: ./.github/workflows/_python.yaml
+
+  frontend:
+    name: Frontend
+    needs: determine-version
+    uses: ./.github/workflows/_frontend.yaml
+
+  docker-build:
+    name: Docker Build
+    needs: determine-version
+    uses: ./.github/workflows/_docker.yaml
+
+  helm-validate:
+    name: Helm Validate
+    needs: determine-version
+    uses: ./.github/workflows/_helm.yaml
+
+  e2e:
+    name: E2E
+    needs: [backend, frontend, docker-build, helm-validate]
+    uses: ./.github/workflows/_e2e.yaml
+
+  publish-docker:
+    name: Publish Docker
+    needs: [e2e]
+    uses: ./.github/workflows/_docker-publish.yaml
+    secrets: inherit
+
+  publish-helm:
+    name: Publish Helm
+    needs: [e2e]
+    uses: ./.github/workflows/_helm-publish.yaml
+    secrets: inherit

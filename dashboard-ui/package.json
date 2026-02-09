@@ -1,0 +1,75 @@
+{
+    "name": "farm-dashboard",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "tsc -b && vite build",
+        "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
+        "lint:fix": "eslint --fix --cache --cache-location ./node_modules/.cache/eslint .",
+        "preview": "vite preview",
+        "test": "vitest",
+        "test:browser": "vitest --project=browser",
+        "test:node": "vitest --project=node",
+        "test:e2e": "playwright test"
+    },
+    "dependencies": {
+        "@nve/elements": "file:./@nve/elements",
+        "@nve/styles": "file:./@nve/styles",
+        "@nve/themes": "file:./@nve/themes",
+        "@tanstack/react-virtual": "^3.11.2",
+        "@xyflow/react": "^12.9.2",
+        "axios": "^1.7.9",
+        "jwt-decode": "^4.0.0",
+        "react": "^19.2.0",
+        "react-dom": "^19.2.0",
+        "react-highlight-words": "^0.21.0",
+        "react-router": "^7.0.2",
+        "use-debounce": "^10.0.4"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.17.0",
+        "@faker-js/faker": "^9.4.0",
+        "@types/react": "^19.2.7",
+        "@types/react-dom": "^19.2.3",
+        "@types/react-highlight-words": "^0.20.0",
+        "@vanilla-extract/css": "^1.16.1",
+        "@vanilla-extract/vite-plugin": "^4.0.18",
+        "@vitejs/plugin-react": "^4.3.4",
+        "@vitest/browser": "^2.1.8",
+        "@vitest/ui": "^2.1.8",
+        "eslint": "^9.17.0",
+        "eslint-config-prettier": "^9.1.0",
+        "eslint-plugin-prettier": "^5.2.1",
+        "eslint-plugin-react": "^7.37.4",
+        "eslint-plugin-react-hooks": "^5.0.0",
+        "eslint-plugin-react-refresh": "^0.4.16",
+        "globals": "^15.13.0",
+        "lint-staged": "^15.4.1",
+        "msw": "^2.7.0",
+        "@playwright/test": "^1.49.1",
+        "playwright": "^1.49.1",
+        "prettier": "^3.4.2",
+        "tsconfig-paths": "^4.2.0",
+        "typescript": "^5.9.3",
+        "typescript-eslint": "^8.18.1",
+        "vite": "^5.4.11",
+        "vite-tsconfig-paths": "^5.1.4",
+        "vitest": "^2.1.8",
+        "vitest-browser-react": "^0.0.4"
+    },
+    "msw": {
+        "workerDirectory": [
+            "public"
+        ]
+    },
+    "lint-staged": {
+        "**/*.{ts,tsx}": [
+            "npm run lint:fix"
+        ],
+        "**/*.{md,yml,html,json}": [
+            "prettier --write"
+        ]
+    }
+}
