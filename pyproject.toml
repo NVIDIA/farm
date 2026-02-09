@@ -20,7 +20,7 @@ dag-svc = "nv.svc.farm.services.dag.entrypoint:main"
 
 [tool.poetry]
 name = "nv.svc.farm"
-version = "1.1.3"
+version = "1.0.1"
 description = "Farm Microservices Mono-repo"
 authors = ["NVIDIA Corporation"]
 license = "Proprietary"
