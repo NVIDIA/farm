@@ -1,28 +1,28 @@
 # Getting started
 ## Prerequisites
 
-This project uses **[Python](https://www.python.org/)** minimum version 3.10, **[Poetry](https://python-poetry.org/)** to manage dependencies and **[Tox](https://tox.wiki/en/stable/)** to automate and standardize testing across multiple versions of Python.
+This project uses **[Python](https://www.python.org/)** minimum version 3.12, **[Poetry](https://python-poetry.org/)** to manage dependencies and **[Tox](https://tox.wiki/en/stable/)** to automate and standardize testing across multiple versions of Python.
 
 | Requirement | Description | Installation |
 ------------- | ----------- | ------------ |
-| [Python 3.10+](https://www.python.org/) | Interpreter | [Ubuntu](https://phoenixnap.com/kb/how-to-install-python-3-ubuntu) |
+| [Python 3.12+](https://www.python.org/) | Interpreter | [Ubuntu](https://phoenixnap.com/kb/how-to-install-python-3-ubuntu) |
 | [Poetry](https://python-poetry.org/docs/) | Dependency Management / Packaging | [Pip](https://python-poetry.org/docs/#installation) |
 | [Tox](https://tox.wiki/en/latest/index.html) | Standardize testing across multiple Python versions | [Pip](https://tox.wiki/en/latest/installation.html#via-pip) |
 | [Make]() | Entrypoints to commands | |
 
 ## Quickstart
 - Clone this repository using `git clone`
-- From within the repistory folder, create a virtual environment `make venv`. Note: if this command is not run before opening VSCode, VScode will not be able to find your virtual environment and you may have to re-open it.
+- From within the repository folder, create a virtual environment `make venv`. Note: if this command is not run before opening VS Code, VS Code will not be able to find your virtual environment and you may have to re-open it.
 - Open VSCode `code .`
 
 ## Development
 It is recommended that most development related commands be executed through `make` commands. This allows the CI system to use an interface rather than an implementation. For example, `make test` will internally call a `tox` target which knows how to run tests on your project allowing us to change how we run tests without modifying CI.
 
-Most `make` targets call `tox` commands which create and maintain a virtuel environment, install required dependencies and optionally install your package. This is the recommended way to do your development as it allows the tooling to do most of the work.
+Most `make` targets call `tox` commands which create and maintain a virtual environment, install required dependencies and optionally install your package. This is the recommended way to do your development as it allows the tooling to do most of the work.
 
 ### Exploring Make Targets
 
-The following is a list of commonly used `make` targets. To see the entire list refer to the `Makefile` at the root of your repository. Keep in mind that `tox` will create and manage its own virtual evironment for you.
+The following is a list of commonly used `make` targets. To see the entire list refer to the `Makefile` at the root of your repository. Keep in mind that `tox` will create and manage its own virtual environment for you.
 
 | Command           | Action                                                 |
 | :---------------- | :----------------------------------------------------- |
@@ -124,18 +124,18 @@ cd dashboard-ui && npx playwright test e2e/login.spec.ts
 It is recommended to start your application using `make start` or by using the pre-configured launch configuration found in `./vscode/launch.json` See [Debugging with VSCode](https://code.visualstudio.com/docs/editor/debugging) for more information.
 
 ## Accessing OpenAPI Spec
-With your application running using `make start` or otherwise, the OpenAPI Spec can be found by navigating to the `/docs` endpoint. For example `http://localhost:8011/docs`
+With your application running using `make start` or otherwise, the OpenAPI Spec can be found by navigating to the `/docs` endpoint. For example `http://localhost:8222/docs`
 
 ## Building the Container Image
-The `Dockerfile` used to build the image is located at the projects root. You can build an image using the command ` docker build . -t "your-image-name:your-version` and you can run this image by using the command `docker run -p 8011:8011 "your-image-name:your-version`
+The `Dockerfile` used to build the image is located at the project's root. You can build an image using the command `docker build . -t "your-image-name:your-version"` and you can run this image by using the command `docker run -p 8222:8222 "your-image-name:your-version"`
 
 ## Versioning
 The `pyproject.toml` contains all the necessary information to build your Python artifact along with its version. This version should be updated each time you wish to merge into your main branch. The build system will build, package, push, and tag your repository with this version.
 
 ## Documentation
-This project is configured to produce documenation using `mkdocs` which will traverse your docstrings and generate a static html site. This is the same way of documentation required to be compatible with Backstages [Techdocs](https://backstage.io/docs/features/techdocs/).
-- Start a live docs server `make docs-server` - This starts  webserver that live updates on changes in your repository for preview
-- Generate static site `make docs` - This produces the static site that is published to GitLab Pages
+This project is configured to produce documentation using `mkdocs` which will traverse your docstrings and generate a static HTML site.
+- Start a live docs server `make docs-server` - This starts a webserver that live updates on changes in your repository for preview
+- Generate static site `make docs` - This produces the static site
 
 ## VSCode
 All VSCode configuration can be found in the `.vscode` directory at the root of the application. Here you can find settings, launch configurations for debugging and recommended extensions.
