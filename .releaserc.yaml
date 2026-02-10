@@ -65,10 +65,13 @@ plugins:
   - - "semantic-release-helm3"
     - chartPath: "helm/nv.svc.farm"
       skipRegistryLogin: true
-  - - "@semantic-release/git"
-    - message: "chore(release): ${nextRelease.version} - nv.svc.farm\n\n${nextRelease.notes}\n\nSigned-off-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
-      assets:
-      - pyproject.toml
-      - CHANGELOG.md
-      - helm/nv.svc.farm/Chart.yaml
+  # Disabled: requires bypass for branch protection to push version commits
+  # - - "@semantic-release/git"
+  #   - message: "chore(release): ${nextRelease.version} - nv.svc.farm\n\n${nextRelease.notes}\n\nSigned-off-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+  #     assets:
+  #     - pyproject.toml
+  #     - CHANGELOG.md
+  #     - helm/nv.svc.farm/Chart.yaml
   - "@semantic-release/github"
+  - - "@semantic-release/exec"
+    - successCmd: echo '{"version":"${nextRelease.version}","gitTag":"${nextRelease.gitTag}"}' > release.json

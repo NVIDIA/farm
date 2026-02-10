@@ -1,8 +1,12 @@
 name: Release
 
 on:
-  release:
-    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version (e.g., 1.0.0)
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -15,9 +19,9 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
-      - name: Extract version from tag
+      - name: Extract version from input
         id: version
-        run: echo "version=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+        run: echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
 
   backend:
     name: Backend
