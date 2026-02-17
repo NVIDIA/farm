@@ -4,12 +4,15 @@
 """Tests for the RedisResultManager using real Redis containers."""
 
 import pytest
+import sys
 from unittest import IsolatedAsyncioTestCase
 from testcontainers.redis import RedisContainer
 import docker
 
 from nv.svc.farm.services.results.facilities.managers.redis import RedisResultManager
 from nv.svc.farm.services.results.facilities.managers.base import ResultNotFound
+
+LINUX_DOCKER_ONLY = "this test is for linux+docker only"
 
 
 def _docker_available():
@@ -77,6 +80,7 @@ class TestRedisResultManager(IsolatedAsyncioTestCase):
             connection_string = self.connection_string
         return RedisResultManager(connection_string=connection_string, result_ttl=result_ttl)
 
+    @pytest.mark.skipif(sys.platform != "linux", reason=LINUX_DOCKER_ONLY)
     async def test_store_new_result(self):
         """Test storing a new result without DAG indexing."""
         task_id = "test-task-1"
@@ -92,6 +96,7 @@ class TestRedisResultManager(IsolatedAsyncioTestCase):
         ttl = await self.manager._redis.ttl(self.manager._get_result_key(task_id))
         self._assert_ttl(ttl)
 
+    @pytest.mark.skipif(sys.platform != "linux", reason=LINUX_DOCKER_ONLY)
     async def test_store_result_with_dag_indexing(self):
         """Test storing a result with DAG indexing."""
         task_id = "dag-task-1"
@@ -118,6 +123,7 @@ class TestRedisResultManager(IsolatedAsyncioTestCase):
         dag_ttl = await self.manager._redis.ttl(dag_key)
         self._assert_ttl(dag_ttl)
 
+    @pytest.mark.skipif(sys.platform != "linux", reason=LINUX_DOCKER_ONLY)
     async def test_get_nonexistent_result(self):
         """Test retrieving a result that doesn't exist."""
         with self.assertRaises(ResultNotFound) as context:
@@ -125,6 +131,7 @@ class TestRedisResultManager(IsolatedAsyncioTestCase):
 
         assert context.exception.task_id == "nonexistent-task"
 
+    @pytest.mark.skipif(sys.platform != "linux", reason=LINUX_DOCKER_ONLY)
     async def test_get_results_by_dag_with_results(self):
         """Test retrieving all results for a DAG that has results."""
         dag_id = "test-dag"
@@ -146,11 +153,13 @@ class TestRedisResultManager(IsolatedAsyncioTestCase):
         for _, expected_data in tasks:
             assert expected_data in dag_results
 
+    @pytest.mark.skipif(sys.platform != "linux", reason=LINUX_DOCKER_ONLY)
     async def test_get_results_by_dag_no_tasks(self):
         """Test retrieving results for a DAG with no tasks."""
         dag_results = await self.manager.get_results_by_dag("empty-dag")
         assert dag_results == []
 
+    @pytest.mark.skipif(sys.platform != "linux", reason=LINUX_DOCKER_ONLY)
     async def test_get_results_by_dag_with_missing_results(self):
         """Test retrieving DAG results when some tasks have missing results."""
         dag_id = "partial-dag"
