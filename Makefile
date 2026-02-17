@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := build
 .PHONY: build publish package coverage test lint docs venv quicktest freeze clean docs check-format fix-format ui ui-clean e2e-up e2e-down e2e-test
-DEFAULT_PY_VERSION = 310
+DEFAULT_PY_VERSION = 312
 
 SHELL = bash
 
