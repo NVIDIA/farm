@@ -38,6 +38,8 @@ class Status(str, enum.Enum):
 
     pending = "pending"  # Task status is changed to pending only for local controller(agent) store to indicate task is no longer in the queue.
 
+    evicted = "evicted"  # Task has been evicted
+
     def __str__(self):
         """Fix inconsistent string generation between python 3.10 and 3.12."""
         return f'{self.name}'
