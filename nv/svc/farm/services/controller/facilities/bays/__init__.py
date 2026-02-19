@@ -7,7 +7,7 @@ import abc
 import json
 import logging
 
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional, Any
 
 # flake8: noqa: B027
 
@@ -18,7 +18,7 @@ class BaseBays(abc.ABC):
         self._used = []
 
     @abc.abstractmethod
-    async def get_capacity(self, tasks: Dict[Tuple[str, str], List[int]], job_definitions: List[Dict]) -> Tuple[List, Dict]:
+    async def get_capacity(self, tasks: Dict[Tuple[str, str], List[int]], job_definitions: List[Dict], taskid_to_job_definition_map: Dict[int, str] = {}) -> Tuple[List, Dict]:
         """
         Get list of tasks and the capacity available to currently run on the agent.
 
@@ -52,7 +52,7 @@ class BaseBays(abc.ABC):
 class OneSlotBay(BaseBays):
     """One-slot bay."""
 
-    async def get_capacity(self, tasks: Dict[Tuple[str, str], List[int]], job_definitions: List[Dict]) -> Tuple[List, Dict]:
+    async def get_capacity(self, tasks: Dict[Tuple[str, str], List[int]], job_definitions: List[Dict], taskid_to_job_definition_map: Dict[int, str] = {}) -> Tuple[List, Dict]:
         """
         Return the capacity for the given tasks.
 
@@ -81,7 +81,30 @@ class MultiSlotBay(BaseBays):
         super().__init__()
         self._max_capacity = max_capacity
 
-    async def get_capacity(self, tasks: Dict[Tuple[str, str], List[int]], job_definitions: List[Dict]) -> Tuple[List, Dict]:
+
+    def _get_gpu_count(self, gpu_instance_type: Optional[str]) -> int:
+        """Get the number of GPUs for a given GPU instance type.
+
+        Args:
+            gpu_instance_type (str): The GPU instance type name to parse for the number of GPUs which are required by this task.
+
+        Returns:
+            int: The extracted number of GPUs for the given GPU instance type, or default to 1 when the number of GPUs cannot be determined.
+        """
+
+        if not gpu_instance_type:
+            return 1
+
+        try:
+            gpu_count = int(gpu_instance_type.rsplit("_", 1)[1].rstrip("x"))
+            return gpu_count
+        except (ValueError, IndexError):
+            pass
+
+        return 1
+
+
+    async def get_capacity(self, tasks: Dict[Tuple[str, str], List[int]], job_definitions: List[Dict[str, Any]], taskid_to_job_definition_map: Dict[int, str] = {}) -> Tuple[List, Dict]:
         """
         Return the capacity for the given tasks.
 
@@ -92,20 +115,33 @@ class MultiSlotBay(BaseBays):
             (List, Dict): Capacity for the given tasks.
 
         """
-        task_types = []
+        task_tuples = []
         capacity = {}
 
+        # build the gpu usage map
+        # BUG: we should really be using underlying capacities since those can differentiate cpu, gpu, memory
+        # .. so this is a massive simplification of the model.
+        gpu_usage_map: Dict[str, int] = {}
+        for job_def in job_definitions:
+            gpu_usage_map[job_def.get("name", "")] = self._get_gpu_count(
+                job_def.get("capacity_requirements", {}).get("gpuSpecification", {}).get("instanceType"))
+
         total_usage = 0
-        for values in tasks.values():
-            total_usage += len(values)
+        for task_tuple, task_ids in tasks.items():
+            for task_id in task_ids:
+                task_gpu_count = 1
+                task_job_definition = taskid_to_job_definition_map.get(task_id)
+                if task_job_definition:
+                    task_gpu_count = gpu_usage_map.get(task_job_definition, 1)
 
-        for task_type, _values in tasks.items():
-            if total_usage >= self._max_capacity:
-                return [], {}
+                total_usage += task_gpu_count
 
-            task_types.append(task_type)
+                if total_usage >= self._max_capacity:
+                    return [], {}
 
-        return task_types, capacity
+            task_tuples.append(task_tuple)
+
+        return task_tuples, capacity
 
 
 class FileBasedMultiSlotBay(MultiSlotBay):
@@ -128,6 +164,6 @@ class FileBasedMultiSlotBay(MultiSlotBay):
 
         return 0
 
-    async def get_capacity(self, tasks: Dict[Tuple[str, str], List[int]], job_definitions: List[Dict]) -> Tuple[List, Dict]:
+    async def get_capacity(self, tasks: Dict[Tuple[str, str], List[int]], job_definitions: List[Dict], taskid_to_job_definition_map: Dict[int, str] = {}) -> Tuple[List, Dict]:
         self._max_capacity = self._get_capacity_limit(self._capacity_file)
-        return await super().get_capacity(tasks, job_definitions)
+        return await super().get_capacity(tasks, job_definitions, taskid_to_job_definition_map)

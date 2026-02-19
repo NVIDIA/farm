@@ -9,8 +9,7 @@ import datetime
 import logging
 import os
 import socket
-from typing import Dict, List, Optional, Tuple
-import urllib.request
+from typing import Dict, List, Optional, Tuple, Any
 import urllib.parse
 
 from nv.svc.core.exceptions import ServicesBaseException
@@ -20,7 +19,6 @@ from nv.svc.farm.services.controller.facilities import bays
 from nv.svc.farm.services.jobs.facilities.manager.base import ProcessManager
 from nv.svc.farm.services.jobs.facilities.manager.nvct import NVCTProcessManager
 from nv.svc.farm.services.jobs.facilities.manager.nvcf import NVCFProcessManager
-
 from nv.svc.farm.services.tasks.facilities.tasks import store
 from nv.svc.farm.services.tasks.utils import status_utils
 from nv.svc.farm.utils import fetch_data, post_data
@@ -28,7 +26,7 @@ from nv.svc.farm.utils import fetch_data, post_data
 
 def get_utc_unixtime() -> float:
     """Return the current time as a unix epoch timestamp in the UTC timezone."""
-    return datetime.datetime.utcnow().timestamp()
+    return datetime.datetime.now(datetime.timezone.utc).timestamp()
 
 
 def _to_url_params(data: Dict):
@@ -58,7 +56,7 @@ class TaskManager:
         bay_controller: bays.BaseBays,
         config: FarmControllerConfig,
         process_manager: ProcessManager,
-        agent_id: str = None,
+        agent_id: Optional[str] = None,
     ) -> None:
         """
         Task Manager constructor.
@@ -73,6 +71,7 @@ class TaskManager:
         self._is_connected = False
         self._is_evicted = False
         self._task_process_map = collections.defaultdict(dict)
+        self._taskid_to_job_definition_map: Dict[int, str] = {}
 
         self._task_store = task_store
         self._bay_manager = bay_controller
@@ -120,8 +119,8 @@ class TaskManager:
             )
         return available
 
-    async def get_job_type_definitions(self):
-        """Retrieve the job definitions for available job types that this operator knows how to process."""
+    async def get_job_type_definitions(self) -> List[Dict]:
+        """Retrieve the job definitions for available job types that this operator knows how to process as a dict."""
         job_definitions = self._process_manager.available_job_specs
         return [job_def.to_dict() for job_def in job_definitions]
 
@@ -253,12 +252,15 @@ class TaskManager:
         task_types = await self.list_available_job_types()
         return [(task_type["task_type"], task_type["task_function"]) for task_type in task_types]
 
-    async def _reconcile(self) -> True:
+    async def _reconcile(self) -> bool:
         """
         Reconcile tasks on startup.
 
         Indicates whether the reconciliation successfully completed, which means all tasks currently reported
         as running in dashboard have an associated job in kubernetes and controller is able to track the progress.
+
+        Returns:
+            bool: True if the reconciliation successfully completed, False otherwise.
         """
         task_types = await self.get_task_types()
 
@@ -376,7 +378,7 @@ class TaskManager:
         except asyncio.exceptions.CancelledError:
             logging.debug("TaskManager.run coroutine has been cancelled.")
 
-    def _get_processid_for_task(self, task_id: str) -> str:
+    def _get_processid_for_task(self, task_id: str) -> Optional[str]:
         """
         Return the process ID of the given task.
 
@@ -588,7 +590,7 @@ class TaskManager:
             last_checkin = active_process_map[task_id]["checkin_time"]
             if last_checkin + task_checkin_timeout < time_now:
                 await self.set_task_errored(task_id=task_id, reason="Process has timed out.")
-                await self.interrupt_running_process(process_id=process_id, process_type=task_type)
+                await self.interrupt_running_process(process_id=str(process_id), process_type=task_type)
 
     async def _check_status_with_remote(self, task_id: str, process_created_time: float) -> None:
         """
@@ -638,8 +640,13 @@ class TaskManager:
             logging.error(f"Failed to process remote state: {str(type(exc))}, {str(exc)}")
 
     async def _get_task(self) -> bool:
-        """Record metadata information about the next executable task."""
-        job_definitions = await self.get_job_type_definitions()
+        """Selects and schedules a task for execution.
+
+        Returns:
+            bool: True if a task was scheduled for execution, False otherwise.
+        """
+
+        job_definitions: List[Dict[str, Any]] = await self.get_job_type_definitions()
         task_types = await self.get_task_types()
 
         active_tasks = {}
@@ -650,7 +657,7 @@ class TaskManager:
                 statuses=["running", "starting"],
             )
 
-        possible_tasks, capacity = await self._bay_manager.get_capacity(active_tasks, job_definitions)
+        possible_tasks, capacity = await self._bay_manager.get_capacity(active_tasks, job_definitions, taskid_to_job_definition_map=self._taskid_to_job_definition_map)
         if not possible_tasks:
             return False
 
@@ -676,6 +683,10 @@ class TaskManager:
         task_function = data["task_function"]
         task_metadata = data["metadata"]
         task_requirements = data["task_requirements"]
+
+        # populate the task_id -> job name (task_type) map
+        # this will be cleaned up when we notice the transition to a finished state
+        self._taskid_to_job_definition_map[task_id] = task_type
 
         # We override the status as pending to avoid we thinking that the operator
         # already has a task with the status Starting, which happens down the line.
@@ -933,6 +944,13 @@ class TaskManager:
 
         if status in ["cancelled", "errored", "finished"]:
             try:
+                # clean up the taskid -> job_definition mapping dict so we don't leak memory.
+                # but don't throw errors if things aren't initialized or not passed in properly.
+                # it's best effort here.
+                try:
+                   del(self._taskid_to_job_definition_map[int(task_id)])
+                except (KeyError, TypeError, ValueError):
+                    pass
                 await self._process_post_completion_tasks(task.get("metadata", {}), task_id, status, task["userid"])
             except Exception as exc:
                 logging.error(f"Failed to process post completion tasks. {str(type(exc))}: {str(exc)}")
@@ -993,7 +1011,7 @@ class TaskManager:
         await self._process_dependants(metadata, parent_task_id, parent_task_status, user_id)
 
     async def _process_dependants(self, metadata: Dict, parent_task_id: str, parent_task_status: str, user_id: str) -> None:
-        dependants: List[Dict] = metadata.get("dependants")
+        dependants: Optional[List[Dict]] = metadata.get("dependants")
         if not dependants:
             logging.info(f"No task dependants found for {parent_task_id}")
             return
