@@ -43,7 +43,9 @@ def _to_url_params(data: Dict):
 
 def _strip_path_from_url(url):
     parsed_url = urllib.parse.urlparse(url)
-    stripped_url = urllib.parse.urlunparse((parsed_url.scheme, parsed_url.netloc, '', '', '', ''))
+    stripped_url = urllib.parse.urlunparse(
+        (parsed_url.scheme, parsed_url.netloc, "", "", "", "")
+    )
     return stripped_url
 
 
@@ -79,13 +81,17 @@ class TaskManager:
 
         self._agent_id = agent_id or f"{socket.getfqdn()}-{os.getpid()}"
 
-        self._service_host_url_format_str = config.controller.service_host_url_format_str
+        self._service_host_url_format_str = (
+            config.controller.service_host_url_format_str
+        )
 
         self._agents_service_url = config.controller.agents_service_url.rstrip("/")
         self._tasks_service_url = config.controller.tasks_service_url.rstrip("/")
 
         self._labels = config.controller.labels.to_list()
-        self._public_to_private_source_queue_hostnames = config.controller.public_to_private_source_queue_hostnames.to_list()
+        self._public_to_private_source_queue_hostnames = (
+            config.controller.public_to_private_source_queue_hostnames.to_list()
+        )
         self._agent_checkin_interval = config.controller.agent_checkin_interval
         self._reconcile_task_state = config.controller.reconcile_task_state
         self._task_reconcile_interval = config.controller.task_reconcile_interval
@@ -111,12 +117,7 @@ class TaskManager:
         """Retrieve available jobs types that this operator knows how to process."""
         available = []
         for task_type, task_function in self._process_manager.available_process_keys:
-            available.append(
-                {
-                    "task_type": task_type,
-                    "task_function": task_function
-                }
-            )
+            available.append({"task_type": task_type, "task_function": task_function})
         return available
 
     async def get_job_type_definitions(self) -> List[Dict]:
@@ -161,7 +162,9 @@ class TaskManager:
             # Ensure that on interruption we force terminate the process rather than shutting down gracefully.
             # TODO: see if this is too much of a sledgehammer at which point
             #   this will need to have a terminate followed by a kill if the process did not shutdown.
-            exit_code = await self._process_manager.stop_process_async(process_type, process_id, kill=True)
+            exit_code = await self._process_manager.stop_process_async(
+                process_type, process_id, kill=True
+            )
             return {
                 "process_id": process_id,
                 "process_type": process_type,
@@ -169,13 +172,12 @@ class TaskManager:
             }
         except KeyError:
             raise ServicesBaseException(
-                status_code=404,
-                detail=f"Process of type {process_type} not found."
+                status_code=404, detail=f"Process of type {process_type} not found."
             )
         except Exception as exc:
             raise ServicesBaseException(
                 status_code=500,
-                detail=f"Error shutting down process: {process_type}-{process_id}: {str(exc)}"
+                detail=f"Error shutting down process: {process_type}-{process_id}: {str(exc)}",
             )
 
     def get_agent_status(self):
@@ -207,13 +209,20 @@ class TaskManager:
                 labels = self.get_labels()
                 task_types = await self.get_task_types()
 
-                data = dict(agent_id=self._agent_id, active_tasks=active_tasks, labels=labels, task_types=task_types)
+                data = dict(
+                    agent_id=self._agent_id,
+                    active_tasks=active_tasks,
+                    labels=labels,
+                    task_types=task_types,
+                )
                 result = await post_data(f"{self._agents_service_url}/checkin", data)
                 self.set_connected(True)
                 if result:
                     self.process_checkin_result(result)
             except Exception as exc:
-                logging.error(f"Unable to perform agent checkin with the Farm queue {str(type(exc))}: {str(exc)}")
+                logging.error(
+                    f"Unable to perform agent checkin with the Farm queue {str(type(exc))}: {str(exc)}"
+                )
                 self.set_connected(False)
 
             await asyncio.sleep(self._agent_checkin_interval)
@@ -250,7 +259,10 @@ class TaskManager:
     async def get_task_types(self) -> List[Tuple[str, str]]:
         """Retrieve list of available definitions with tuples of ("task_type", "task_function")."""
         task_types = await self.list_available_job_types()
-        return [(task_type["task_type"], task_type["task_function"]) for task_type in task_types]
+        return [
+            (task_type["task_type"], task_type["task_function"])
+            for task_type in task_types
+        ]
 
     async def _reconcile(self) -> bool:
         """
@@ -273,9 +285,13 @@ class TaskManager:
                     status=["running", "starting"],
                 )
                 url_params = _to_url_params(params)
-                active_tasks = await fetch_data(f"{self._tasks_service_url}/list?{url_params}")
+                active_tasks = await fetch_data(
+                    f"{self._tasks_service_url}/list?{url_params}"
+                )
             except Exception as exc:
-                logging.error(f"Problem fetching tasks to execute from the remote Tasks service: {str(type(exc))}: {str(exc)}")
+                logging.error(
+                    f"Problem fetching tasks to execute from the remote Tasks service: {str(type(exc))}: {str(exc)}"
+                )
                 return False
 
             for tasks in active_tasks.values():
@@ -288,7 +304,9 @@ class TaskManager:
 
                     # If we're already executing a process id within that task, interrupt the task.
                     if self._task_process_map[(task_type, task_function)].get(task_id):
-                        logging.debug(f"No need to reconcile the task {task_id} (status: {data['status']})")
+                        logging.debug(
+                            f"No need to reconcile the task {task_id} (status: {data['status']})"
+                        )
                         continue
                     else:
                         logging.info(f"Reconciling the task {task_id}")
@@ -311,12 +329,16 @@ class TaskManager:
                         args["labels"] = data["labels"]
                         await self._task_store.insert_existing_task(**args)
                     except Exception as exc:
-                        logging.error(f"Problem inserting {task_id} into local task store {str(exc)}")
+                        logging.error(
+                            f"Problem inserting {task_id} into local task store {str(exc)}"
+                        )
                         return False
 
                     if task_function:
                         task_args["task_id"] = task_id
-                        task_args["task_log_file"] = "${logs}/" + f"{task_type}_{task_function}_{task_id}_" + "${start_timestamp}.log"
+                        task_args["task_log_file"] = (
+                            "${logs}/" + f"{task_type}_{task_function}_{task_id}_" + "${start_timestamp}.log"
+                        )
 
                     try:
                         task_payload = {
@@ -324,21 +346,29 @@ class TaskManager:
                             "data": {
                                 "allowed_args": task_args,
                                 "metadata": task_metadata,
-                            }
+                            },
                         }
                         # When using NVCT or NVCF, the task id may be the NVCT/NVCF task id, otherwise use the Farm task id.
                         # use the selected_task_id to retrieve the task which will create an instance using the correct pid on the process manager.
-                        selected_task_id = task_metadata.get("nvct_task_id") or task_metadata.get("nvcf_function_id")
+                        selected_task_id = task_metadata.get(
+                            "nvct_task_id"
+                        ) or task_metadata.get("nvcf_function_id")
                         if not selected_task_id and (self._is_nvct or self._is_nvcf):
                             selected_task_id = task_id
                             process_manager_name = "NVCT" if self._is_nvct else "NVCF"
-                            logging.warning(f"No {process_manager_name} Task ID found for {task_id}, using the Farm Task ID to create reconciled instance.")
-                        launch_task_response = await self._retrieve_task(selected_task_id, task_type, task_payload)
+                            logging.warning(
+                                f"No {process_manager_name} Task ID found for {task_id}, using the Farm Task ID to create reconciled instance."
+                            )
+                        launch_task_response = await self._retrieve_task(
+                            selected_task_id, task_type, task_payload
+                        )
 
                         process_id = launch_task_response["data"]["process_id"]
                         process_status = launch_task_response["data"]["process_status"]
 
-                        logging.info(f"Reconciled {task_id} with {process_id} with status {process_status}")
+                        logging.info(
+                            f"Reconciled {task_id} with {process_id} with status {process_status}"
+                        )
                         time_now = get_utc_unixtime()
                         self._task_process_map[(task_type, task_function)][task_id] = {
                             "process_id": process_id,
@@ -348,13 +378,17 @@ class TaskManager:
                     except Exception as exc:
                         await self.set_task_errored(task_id, str(exc))
                     else:
-                        await self._set_task_status(task_id, process_status, "agent is reconciling task")
+                        await self._set_task_status(
+                            task_id, process_status, "agent is reconciling task"
+                        )
         return True
 
     async def _run(self) -> None:
         """Execute the next task the agent is able to perform."""
         labels_str = ",".join(self._labels)
-        logging.info(f"Starting Controller TaskManager agent_id: {self._agent_id}, labels: {labels_str}")
+        logging.info(
+            f"Starting Controller TaskManager agent_id: {self._agent_id}, labels: {labels_str}"
+        )
         while not self._should_stop.is_set():
             task_submitted = False
             sleep_duration = self._fetch_task_idle_delay
@@ -413,7 +447,6 @@ class TaskManager:
         """Execute task status checks."""
         while not self._should_stop.is_set():
             try:
-
                 await self._check_tasks()
             except Exception as exc:
                 logging.error(f"Error running task checks: {str(exc)}")
@@ -444,7 +477,7 @@ class TaskManager:
                 active_process_map=self._task_process_map[(task_type, task_function)],
                 task_checkin_timeout=self._task_checkin_timeout,
                 finished_processes=finished_processes.get(task_type, []),
-                errored_processes=errored_processes.get(task_type, [])
+                errored_processes=errored_processes.get(task_type, []),
             )
 
     async def _check_active_tasks_status(
@@ -456,7 +489,7 @@ class TaskManager:
         active_process_map: Dict,
         task_checkin_timeout: int,
         finished_processes: List,
-        errored_processes: List
+        errored_processes: List,
     ) -> None:
         """
         Check the status of the tasks matching the given search criterias.
@@ -488,14 +521,21 @@ class TaskManager:
             errored_processes,
             finished_processes,
             active_processes,
-            task_checkin_timeout
+            task_checkin_timeout,
         )
         for task_to_check in tasks_to_check:
             task_id, process_created_time = task_to_check
-            futures_checking_with_remote.append(asyncio.ensure_future(self._check_status_with_remote(task_id, process_created_time)))
+            futures_checking_with_remote.append(
+                asyncio.ensure_future(
+                    self._check_status_with_remote(task_id, process_created_time)
+                )
+            )
 
         try:
-            await asyncio.wait_for(asyncio.gather(*futures_checking_with_remote, return_exceptions=True), timeout=10)
+            await asyncio.wait_for(
+                asyncio.gather(*futures_checking_with_remote, return_exceptions=True),
+                timeout=10,
+            )
         except asyncio.TimeoutError:
             logging.warning("Failed to collect status for all tasks. Timed out.")
 
@@ -507,7 +547,7 @@ class TaskManager:
         errored_processes: List,
         finished_processes: List,
         active_processes: List,
-        task_checkin_timeout: int
+        task_checkin_timeout: int,
     ) -> List:
         """
         Check status of tasks.
@@ -525,7 +565,7 @@ class TaskManager:
 
         task_ids = [task["task_id"] for task in tasks]
         if task_ids:
-            logging.info(f'Checking status of tasks {" ".join(task_ids)}')
+            logging.info(f"Checking status of tasks {' '.join(task_ids)}")
 
         for task in tasks:
             task_id = task["task_id"]
@@ -540,7 +580,9 @@ class TaskManager:
                 process_id = process.get("process_id", None)
                 process_created_time = process.get("created_time", None)
             except KeyError:
-                message = f"Unable to retrieve task id {task_id}. Process likely crashed"
+                message = (
+                    f"Unable to retrieve task id {task_id}. Process likely crashed"
+                )
                 await self.set_task_errored(task_id=task_id, reason=message)
                 continue
 
@@ -549,18 +591,30 @@ class TaskManager:
                     await self._set_task_status(task_id, "running", "running")
                     status_has_changed = True
                 elif process_id in errored_processes:
-                    await self.set_task_errored(task_id=task_id, reason="Process finished without a successful exit code.")
+                    await self.set_task_errored(
+                        task_id=task_id,
+                        reason="Process finished without a successful exit code.",
+                    )
                     status_has_changed = True
                 elif process_id in finished_processes:
                     await self.set_task_finished(task_id=task_id)
                     status_has_changed = True
                 elif process_id not in active_processes:
-                    await self.set_task_errored(task_id=task_id, reason="Process likely crashed")
+                    await self.set_task_errored(
+                        task_id=task_id, reason="Process likely crashed"
+                    )
                     status_has_changed = True
 
                 # Simple processes currently can't do a checkin so don't verify they checked in
                 if task_function:
-                    await self._process_checkin_time(task_id, task_type, process_id, active_process_map, status, task_checkin_timeout)
+                    await self._process_checkin_time(
+                        task_id,
+                        task_type,
+                        process_id,
+                        active_process_map,
+                        status,
+                        task_checkin_timeout,
+                    )
             except Exception:
                 logging.exception(f"Unable to update the task status for {task_id}.")
                 continue
@@ -577,9 +631,8 @@ class TaskManager:
         process_id: int,
         active_process_map: Dict,
         status: str,
-        task_checkin_timeout: int
+        task_checkin_timeout: int,
     ) -> None:
-
         time_now = get_utc_unixtime()
 
         if status == "starting":
@@ -589,10 +642,16 @@ class TaskManager:
         if status == "running" and task_checkin_timeout > 0:
             last_checkin = active_process_map[task_id]["checkin_time"]
             if last_checkin + task_checkin_timeout < time_now:
-                await self.set_task_errored(task_id=task_id, reason="Process has timed out.")
-                await self.interrupt_running_process(process_id=str(process_id), process_type=task_type)
+                await self.set_task_errored(
+                    task_id=task_id, reason="Process has timed out."
+                )
+                await self.interrupt_running_process(
+                    process_id=str(process_id), process_type=task_type
+                )
 
-    async def _check_status_with_remote(self, task_id: str, process_created_time: float) -> None:
+    async def _check_status_with_remote(
+        self, task_id: str, process_created_time: float
+    ) -> None:
         """
         Check task status with remote task service to trigger actions from the queue.
 
@@ -611,7 +670,9 @@ class TaskManager:
 
             if task_status in ["submitted"]:
                 logging.warning(f"Task {task_id} is in {task_status}, interrupting it.")
-                await self._interrupt_task(task_id, "task got retried", skip_task_service_update=True)
+                await self._interrupt_task(
+                    task_id, "task got retried", skip_task_service_update=True
+                )
                 return
 
             # We check the revision history to see if the task hasn't already started running in another agent.
@@ -619,7 +680,9 @@ class TaskManager:
             # TODO: Create JIRA -- revision history could use a filter on agent-id and time, e.g: query only revisions
             # NOT from me AND after launch time of the task. For now do it in python.
             # Ensure it's all UTC in both agent and server side... otherwise this can get problematic.
-            revisions = await fetch_data(f"{self._tasks_service_url}/revision-history/{task_id}")
+            revisions = await fetch_data(
+                f"{self._tasks_service_url}/revision-history/{task_id}"
+            )
 
             for revision in revisions:
                 agent_id = revision["agent_id"]
@@ -632,15 +695,22 @@ class TaskManager:
 
                 logging.warning(
                     f"Task {task_id} is being interrupted because another agent"
-                    f" has changed its status after we've created it: {str(revision)}")
+                    f" has changed its status after we've created it: {str(revision)}"
+                )
 
-                await self._interrupt_task(task_id, "task running in another agent", skip_task_service_update=True)
+                await self._interrupt_task(
+                    task_id,
+                    "task running in another agent",
+                    skip_task_service_update=True,
+                )
 
         except Exception as exc:
-            logging.error(f"Failed to process remote state: {str(type(exc))}, {str(exc)}")
+            logging.error(
+                f"Failed to process remote state: {str(type(exc))}, {str(exc)}"
+            )
 
     async def _get_task(self) -> bool:
-        """Selects and schedules a task for execution.
+        """Select and schedule a task for execution.
 
         Returns:
             bool: True if a task was scheduled for execution, False otherwise.
@@ -657,7 +727,11 @@ class TaskManager:
                 statuses=["running", "starting"],
             )
 
-        possible_tasks, capacity = await self._bay_manager.get_capacity(active_tasks, job_definitions, taskid_to_job_definition_map=self._taskid_to_job_definition_map)
+        possible_tasks, capacity = await self._bay_manager.get_capacity(
+            active_tasks,
+            job_definitions,
+            taskid_to_job_definition_map=self._taskid_to_job_definition_map,
+        )
         if not possible_tasks:
             return False
 
@@ -666,11 +740,13 @@ class TaskManager:
                 task_types=possible_tasks,
                 capacity=capacity,
                 agent_id=self._agent_id,
-                labels=self._labels
+                labels=self._labels,
             )
             data = await post_data(f"{self._tasks_service_url}/fetch", data_to_post)
         except Exception as exc:
-            logging.error(f"Problem fetching tasks to execute from the remote Tasks service: {str(type(exc))}: {str(exc)}")
+            logging.error(
+                f"Problem fetching tasks to execute from the remote Tasks service: {str(type(exc))}: {str(exc)}"
+            )
             data = None
 
         if not data:
@@ -700,7 +776,9 @@ class TaskManager:
 
         if task_function:
             task_args["task_id"] = task_id
-            task_args["task_log_file"] = "${logs}/" + f"{task_type}_{task_function}_{task_id}_" + "${start_timestamp}.log"
+            task_args["task_log_file"] = (
+                "${logs}/" + f"{task_type}_{task_function}_{task_id}_" + "${start_timestamp}.log"
+            )
 
         try:
             task_payload = {
@@ -709,9 +787,11 @@ class TaskManager:
                     "allowed_args": task_args,
                     "metadata": task_metadata,
                     "task_requirements": task_requirements,
-                }
+                },
             }
-            launch_task_response = await self._launch_task(task_id, task_type, task_payload)
+            launch_task_response = await self._launch_task(
+                task_id, task_type, task_payload
+            )
 
             process_id = launch_task_response["data"]["process_id"]
             process_status = launch_task_response["data"]["process_status"]
@@ -720,7 +800,9 @@ class TaskManager:
 
             # If we're already executing a process id within that task, interrupt the task.
             if self._task_process_map[(task_type, task_function)].get(task_id):
-                await self._interrupt_task(task_id, "task got retried", skip_task_service_update=True)
+                await self._interrupt_task(
+                    task_id, "task got retried", skip_task_service_update=True
+                )
 
             time_now = get_utc_unixtime()
             self._task_process_map[(task_type, task_function)][task_id] = {
@@ -748,7 +830,9 @@ class TaskManager:
             dict containing the process_id and process_status
 
         """
-        response = await self._process_manager.spawn(job_name=task_type, payload=data, task_id=task_id)
+        response = await self._process_manager.spawn(
+            job_name=task_type, payload=data, task_id=task_id
+        )
         result = response.model_dump()
         if self._is_nvct or self._is_nvcf:
             # NOTE: this is a hack to keep track of the NVCT/NVCF Task ID, useful for reconsiling task upon controller startup.
@@ -777,7 +861,9 @@ class TaskManager:
             dict containing the process_id and process_status
 
         """
-        result = await self._process_manager.retrieve(job_name=task_type, payload=data, task_id=task_id)
+        result = await self._process_manager.retrieve(
+            job_name=task_type, payload=data, task_id=task_id
+        )
         return result.model_dump()
 
     def stop(self) -> None:
@@ -809,7 +895,9 @@ class TaskManager:
             Any: Information about the response to the task's update notification.
 
         """
-        return await self._set_task_status(task_id, "starting", "starting", pop_from_process_map=False)
+        return await self._set_task_status(
+            task_id, "starting", "starting", pop_from_process_map=False
+        )
 
     async def set_task_finished(self, task_id: str):
         """
@@ -822,7 +910,9 @@ class TaskManager:
             Any: Information about the response to the task's update notification.
 
         """
-        return await self._set_task_status(task_id, "finished", "finished", pop_from_process_map=True)
+        return await self._set_task_status(
+            task_id, "finished", "finished", pop_from_process_map=True
+        )
 
     async def set_task_errored(self, task_id: str, reason: str):
         """
@@ -836,7 +926,9 @@ class TaskManager:
             Any: Information about the response to the task's update notification.
 
         """
-        return await self._set_task_status(task_id, "errored", reason, pop_from_process_map=True)
+        return await self._set_task_status(
+            task_id, "errored", reason, pop_from_process_map=True
+        )
 
     async def task_checkin(
         self,
@@ -876,7 +968,12 @@ class TaskManager:
         except Exception as exc:
             logging.error(f"Failed to cancel process for task {task_id}: {exc}")
 
-    async def _interrupt_task(self, task_id: str, status_message: str = "", skip_task_service_update: bool = False) -> None:
+    async def _interrupt_task(
+        self,
+        task_id: str,
+        status_message: str = "",
+        skip_task_service_update: bool = False,
+    ) -> None:
         """
         Interrupt the given task.
 
@@ -898,12 +995,17 @@ class TaskManager:
 
         if process_id:
             self._task_process_map[(task_type, task_function)].pop(task_id)
-            await self.interrupt_running_process(process_id=process_id, process_type=task_type)
+            await self.interrupt_running_process(
+                process_id=process_id, process_type=task_type
+            )
         else:
-            logging.warning(f"No process to interupt for {task_id}. Marking task as cancelled.")
+            logging.warning(
+                f"No process to interupt for {task_id}. Marking task as cancelled."
+            )
 
         await self._set_task_status(
-            task_id, "cancelled",
+            task_id,
+            "cancelled",
             status_message,
             pop_from_process_map=True,
             skip_task_service_update=skip_task_service_update,
@@ -918,7 +1020,7 @@ class TaskManager:
         pop_from_process_map: bool = False,
         metrics: Optional[str] = None,
         progress: Optional[Dict] = None,
-        skip_task_service_update: bool = False
+        skip_task_service_update: bool = False,
     ):
         """
         Set the status of the given task.
@@ -935,7 +1037,9 @@ class TaskManager:
             Any: Information about the response to the task's update notification.
 
         """
-        logging.info(f"Transitioning status of task {task_id} to {status} because {reason}")
+        logging.info(
+            f"Transitioning status of task {task_id} to {status} because {reason}"
+        )
 
         task = await self._task_store.get_task(task_id=task_id)
         task_type = task["task_type"]
@@ -948,12 +1052,16 @@ class TaskManager:
                 # but don't throw errors if things aren't initialized or not passed in properly.
                 # it's best effort here.
                 try:
-                   del(self._taskid_to_job_definition_map[int(task_id)])
+                    del self._taskid_to_job_definition_map[int(task_id)]
                 except (KeyError, TypeError, ValueError):
                     pass
-                await self._process_post_completion_tasks(task.get("metadata", {}), task_id, status, task["userid"])
+                await self._process_post_completion_tasks(
+                    task.get("metadata", {}), task_id, status, task["userid"]
+                )
             except Exception as exc:
-                logging.error(f"Failed to process post completion tasks. {str(type(exc))}: {str(exc)}")
+                logging.error(
+                    f"Failed to process post completion tasks. {str(type(exc))}: {str(exc)}"
+                )
 
         update_service_task_status = True
         result = {}
@@ -968,7 +1076,9 @@ class TaskManager:
                 progress=progress,
             )
         except status_utils.StatusTransitionException as e:
-            logging.warning(f"Not updating service status of the task {task_id}: {str(e)}")
+            logging.warning(
+                f"Not updating service status of the task {task_id}: {str(e)}"
+            )
             update_service_task_status = False
 
         if not skip_task_service_update and update_service_task_status:
@@ -986,7 +1096,9 @@ class TaskManager:
                 )
                 await post_data(f"{self._tasks_service_url}/update", data)
             except Exception as exc:
-                logging.error(f"Issue updating task {task_id} in the remote Tasks service: {str(type(exc))}: {str(exc)}")
+                logging.error(
+                    f"Issue updating task {task_id} in the remote Tasks service: {str(type(exc))}: {str(exc)}"
+                )
 
         try:
             if pop_from_process_map:
@@ -997,7 +1109,9 @@ class TaskManager:
                     if status != "cancelled":
                         raise
             else:
-                self._task_process_map[(task_type, task_function)][task_id]["checkin_time"] = get_utc_unixtime()
+                self._task_process_map[(task_type, task_function)][task_id][
+                    "checkin_time"
+                ] = get_utc_unixtime()
         except KeyError as exc:
             error_message = f"Failed to update task process map: {exc}"
             if reason:
@@ -1006,11 +1120,17 @@ class TaskManager:
 
         return result
 
-    async def _process_post_completion_tasks(self, metadata: Dict, parent_task_id: str, parent_task_status: str, user_id: str) -> None:
+    async def _process_post_completion_tasks(
+        self, metadata: Dict, parent_task_id: str, parent_task_status: str, user_id: str
+    ) -> None:
         logging.info(f"Processing post completion tasks for {parent_task_id}")
-        await self._process_dependants(metadata, parent_task_id, parent_task_status, user_id)
+        await self._process_dependants(
+            metadata, parent_task_id, parent_task_status, user_id
+        )
 
-    async def _process_dependants(self, metadata: Dict, parent_task_id: str, parent_task_status: str, user_id: str) -> None:
+    async def _process_dependants(
+        self, metadata: Dict, parent_task_id: str, parent_task_status: str, user_id: str
+    ) -> None:
         dependants: Optional[List[Dict]] = metadata.get("dependants")
         if not dependants:
             logging.info(f"No task dependants found for {parent_task_id}")
@@ -1053,6 +1173,8 @@ class TaskManager:
         self._is_evicted = True if status == "evicted" else False
 
         if is_currently_evicted and status != "evicted":
-            logging.info("Agent has been re-enabled after eviction and will start processing tasks")
+            logging.info(
+                "Agent has been re-enabled after eviction and will start processing tasks"
+            )
         elif not is_currently_evicted and status == "evicted":
             logging.info("Agent has been evicted and will not process new tasks")
