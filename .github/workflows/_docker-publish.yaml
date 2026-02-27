@@ -51,9 +51,7 @@ jobs:
         run: |
           docker load -i farm-image.tar
           LOADED_IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -1)
-          MAJOR_MINOR=$(echo "$VERSION" | cut -d. -f1,2)
           docker tag "$LOADED_IMAGE" "$REGISTRY/$IMAGE_NAME:$VERSION"
-          docker tag "$LOADED_IMAGE" "$REGISTRY/$IMAGE_NAME:$MAJOR_MINOR"
 
       - name: Push image
         env:
@@ -61,6 +59,4 @@ jobs:
           IMAGE_NAME: ${{ inputs.image_name }}
           VERSION: ${{ inputs.version }}
         run: |
-          MAJOR_MINOR=$(echo "$VERSION" | cut -d. -f1,2)
           docker push "$REGISTRY/$IMAGE_NAME:$VERSION"
-          docker push "$REGISTRY/$IMAGE_NAME:$MAJOR_MINOR"
