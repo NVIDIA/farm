@@ -51,6 +51,7 @@ jobs:
         run: |
           docker load -i farm-image.tar
           LOADED_IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -1)
+          IMAGE_NAME="${IMAGE_NAME,,}"
           docker tag "$LOADED_IMAGE" "$REGISTRY/$IMAGE_NAME:$VERSION"
 
       - name: Push image
@@ -59,4 +60,5 @@ jobs:
           IMAGE_NAME: ${{ inputs.image_name }}
           VERSION: ${{ inputs.version }}
         run: |
+          IMAGE_NAME="${IMAGE_NAME,,}"
           docker push "$REGISTRY/$IMAGE_NAME:$VERSION"
