@@ -3,6 +3,10 @@ name: Docker Publish
 on:
   workflow_call:
     inputs:
+      version:
+        description: Release version (e.g., 1.0.0)
+        required: true
+        type: string
       registry:
         description: Container registry
         type: string
@@ -34,32 +38,25 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ inputs.registry }}/${{ inputs.image_name }}
-          tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-
       - name: Download image artifact
         uses: actions/download-artifact@v4
         with:
           name: docker-image
 
       - name: Load and tag image
+        env:
+          REGISTRY: ${{ inputs.registry }}
+          IMAGE_NAME: ${{ inputs.image_name }}
+          VERSION: ${{ inputs.version }}
         run: |
           docker load -i farm-image.tar
-          # Get the loaded image ID
           LOADED_IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | head -1)
-          # Tag with all required tags
-          echo "${{ steps.meta.outputs.tags }}" | while read tag; do
-            [ -n "$tag" ] && docker tag "$LOADED_IMAGE" "$tag"
-          done
+          docker tag "$LOADED_IMAGE" "$REGISTRY/$IMAGE_NAME:$VERSION"
 
       - name: Push image
+        env:
+          REGISTRY: ${{ inputs.registry }}
+          IMAGE_NAME: ${{ inputs.image_name }}
+          VERSION: ${{ inputs.version }}
         run: |
-          echo "${{ steps.meta.outputs.tags }}" | while read tag; do
-            [ -n "$tag" ] && docker push "$tag"
-          done
+          docker push "$REGISTRY/$IMAGE_NAME:$VERSION"

@@ -52,6 +52,8 @@ jobs:
     name: Publish Docker
     needs: [e2e]
     uses: ./.github/workflows/_docker-publish.yaml
+    with:
+      version: ${{ needs.determine-version.outputs.version }}
     secrets: inherit
 
   publish-helm:
