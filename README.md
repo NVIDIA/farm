@@ -1,4 +1,34 @@
-# Getting started
+# Farm Job Scheduler
+
+Farm is a job scheduler for executing tasks as CLI programs or wrapped in containers.
+
+Groups of dependent tasks can be scheduled hierarchically as a Taskflow which are described as a Directed acyclic graph (DAG).
+
+All components of Farm are known to work in the following operating systems:
+- Linux
+- macOS
+- Windows
+
+It can be configured to execute tasks locally (via Agents), or schedule tasks to downstream schedulers such as K8s and [Cloud Tasks](https://docs.nvidia.com/cloud-functions/user-guide/latest/cloud-function/tasks.html).
+
+Farm can be run with all microservices executing within a single python process (stand-alone mode), or can be deployed into K8s as a scalable distributed system using the provided [Helm](helm/nv.svc.farm) charts.
+
+By default, when Farm is run in stand-alone mode data will be persisted to a local [SQLite](https://sqlite.org/) database. [MariaDB](https://mariadb.org/) is the recommended database for Helm chart deployments, although [Postgresql](https://www.postgresql.org/) is well supported.
+
+## Quickstart
+- Install Python 3.12+, tox, poetry, then build and run a local stand-alone instance of Farm:
+```shell
+pip3 install tox poetry
+env svc='python3 -m nv.svc.farm.standalone' make start
+```
+- Access the [local Farm OpenAPI docs](http://127.0.0.1:8222/docs).
+
+## Included Documentation
+- [Omniverse Farm docs](/user-manual/) - The best place to get started, includes K8s and Omniverse integration docs.
+- [Modern Workflow docs](/user-docs/index.md) - A practical example user job submission that implements Taskflows (Directed Acyclic Graph) for job submission.
+
+# Extended Development Getting Started
+
 ## Prerequisites
 
 This project uses **[Python](https://www.python.org/)** minimum version 3.12, **[Poetry](https://python-poetry.org/)** to manage dependencies and **[Tox](https://tox.wiki/en/stable/)** to automate and standardize testing across multiple versions of Python.
