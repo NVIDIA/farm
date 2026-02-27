@@ -3,6 +3,10 @@ name: Helm Publish
 on:
   workflow_call:
     inputs:
+      version:
+        description: Release version (e.g., 1.0.0)
+        required: true
+        type: string
       chart_path:
         description: Path to Helm chart
         type: string
@@ -25,6 +29,11 @@ jobs:
 
       - name: Log in to GitHub Container Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Update chart version
+        run: |
+          sed -i "s/^version: .*/version: ${{ inputs.version }}/" ${{ inputs.chart_path }}/Chart.yaml
+          sed -i "s/^appVersion: .*/appVersion: \"${{ inputs.version }}\"/" ${{ inputs.chart_path }}/Chart.yaml
 
       - name: Package chart
         run: helm package ${{ inputs.chart_path }}
