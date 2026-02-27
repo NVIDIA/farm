@@ -497,7 +497,7 @@ class TestTaskManager(IsolatedAsyncioTestCase):
         self.TEST_FETCH_TASK_STATUS_ID = task_id
 
         # Let get_capacity return a value that shows we have room to run a task.
-        async def get_capacity(foo, bar):
+        async def get_capacity(foo, bar, taskid_to_job_definition_map={}):
             return ("create-render", 1)
         self._manager._bay_manager.get_capacity = get_capacity
 
@@ -547,7 +547,7 @@ class TestTaskManager(IsolatedAsyncioTestCase):
         self.TEST_FETCH_TASK_STATUS_ID = task_id
 
         # Let get_capacity return a value that shows we have room to run a task.
-        async def get_capacity(foo, bar):
+        async def get_capacity(foo, bar, taskid_to_job_definition_map={}):
             return ("test-job", 1)
         self._manager._bay_manager.get_capacity = get_capacity
 

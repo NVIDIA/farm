@@ -56,7 +56,7 @@ MINIMUM_FIELDS = [
 
 def _get_utc_unixtime() -> float:
     """Return the current time as a unix epoch timestamp in the UTC timezone."""
-    return datetime.datetime.utcnow().timestamp()
+    return datetime.datetime.now(datetime.timezone.utc).timestamp()
 
 
 def lock_database_transaction(function: Callable) -> Callable:

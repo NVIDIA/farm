@@ -4,7 +4,7 @@
 """Farm Retries Service Facilities."""
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List
 
 from nv.svc.core.facilities import base
@@ -40,7 +40,8 @@ class RetryManager(base.Facility):
 
     def _is_task_retryable(self, task: Dict) -> bool:
         is_retryable = False
-        current_time_utc = datetime.timestamp(datetime.utcnow())
+
+        current_time_utc = datetime.now(timezone.utc).timestamp()
         task_id = task["task_id"]
         retry_metadata = task.get("metadata", {}).get("_retry", {})
         retry_count = retry_metadata.get("count", 0)

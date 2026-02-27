@@ -5,7 +5,6 @@ from typing import Dict
 from .custom_test_case import CustomIsolatedAsyncioTestCase
 from fastapi.testclient import TestClient
 from nv.svc.farm.services.capacity.config import FarmCapacityConfig
-from nv.svc.farm.services.capacity.entrypoint import main as settings_main
 from nv.svc.farm.services.capacity.managers.settings import SettingsAgentCapacityManager
 from nv.svc.farm.services.capacity.router import router
 from nv.svc.core import main

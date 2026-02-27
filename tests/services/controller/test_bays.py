@@ -5,7 +5,7 @@ import json
 import platform
 import tempfile
 
-from typing import Dict
+from typing import Dict, Tuple, List, Any
 from unittest import skipUnless, IsolatedAsyncioTestCase, mock
 
 from nv.svc.core.client.http import HTTPClientSession
@@ -308,3 +308,65 @@ class TestCapacityBay(CustomIsolatedAsyncioTestCase):
         self.assertEqual(tasks, [("baz", "qux")])
         self.assertNotIn("simple", capacity)
         self.assertIn("other", capacity)
+
+    async def test_multislot_gpu_label_parsing(self):
+        """Test that the multislot bay parses gpu counts properly from gpuSpecification labels."""
+
+        bay_manager = MultiSlotBay(max_capacity=10)
+
+        # unknown instance label formats should fall back to 1
+        self.assertEqual(bay_manager._get_gpu_count(gpu_instance_type="unknown"), 1)
+        self.assertEqual(bay_manager._get_gpu_count(gpu_instance_type="unknown_xanything"), 1)
+
+        # nvidia k8s gpu operator style instance type labels
+        self.assertEqual(bay_manager._get_gpu_count(gpu_instance_type="nvidia.com/gpu_4x"), 4)
+        self.assertEqual(bay_manager._get_gpu_count(gpu_instance_type="nvidia.com/gpu_1x"), 1)
+
+        # nvidia dgx cloud style instance type labels
+        self.assertEqual(bay_manager._get_gpu_count(gpu_instance_type="DGX-CLOUD.GPU.L40_1x"), 1)
+        self.assertEqual(bay_manager._get_gpu_count(gpu_instance_type="DGX-CLOUD.GPU.L40_2x"), 2)
+        self.assertEqual(bay_manager._get_gpu_count(gpu_instance_type="DGX-CLOUD.GPU.L40_4x"), 4)
+
+    async def test_multislot_tasks_are_filtered_on_gpu_capacity_not_full(self):
+        """Test the multislot bay tasks are filtered out when there is GPU capacity."""
+
+        bay_manager = MultiSlotBay(max_capacity=10)
+
+        not_full_task_job_definition_map: Dict[int, str] = {
+            123: "single-gpu",
+            124: "multi-gpu",
+            125: "multi-gpu"
+        }
+        task_data: Dict[Tuple[str, str], List[int]] = {("kit-service", "render.run"): list(not_full_task_job_definition_map.keys())}
+        job_definitions: List[Dict[str, Any]] = [
+            {"name": "single-gpu", "job_type": "kit-service", "task_function": "render.run", "capacity_requirements": {"gpuSpecification": {"instanceType": "nvidia.com/gpu_1x"}}},
+            {"name": "multi-gpu", "job_type": "kit-service", "task_function": "render.run", "capacity_requirements": {"gpuSpecification": {"instanceType": "nvidia.com/gpu_4x"}}}
+        ]
+
+        tasks, capacity = await bay_manager.get_capacity(tasks=task_data, job_definitions=job_definitions, taskid_to_job_definition_map=not_full_task_job_definition_map)
+        self.assertEqual(tasks, [("kit-service", "render.run")])
+        self.assertEqual(capacity, {})
+
+    async def test_multislot_tasks_are_filtered_on_gpu_capacity_full(self):
+        """Test the multislot bay tasks are filtered out when there is no GPU capacity."""
+
+        bay_manager = MultiSlotBay(max_capacity=10)
+
+        # this list of tasks should exceed the gpu capacity, but if we're not calculating gpus properly, it'll fit when tasks:gpus are 1:1.
+        full_task_job_definition_map: Dict[int, str] = {
+            123: "single-gpu",
+            124: "multi-gpu",
+            125: "multi-gpu",
+            126: "multi-gpu",
+            127: "multi-gpu",
+            128: "multi-gpu"
+        }
+        task_data: Dict[Tuple[str, str], List[int]] = {("kit-service", "render.run"): list(full_task_job_definition_map.keys())}
+        job_definitions: List[Dict[str, Any]] = [
+            {"name": "single-gpu", "job_type": "kit-service", "task_function": "render.run", "capacity_requirements": {"gpuSpecification": {"instanceType": "nvidia.com/gpu_1x"}}},
+            {"name": "multi-gpu", "job_type": "kit-service", "task_function": "render.run", "capacity_requirements": {"gpuSpecification": {"instanceType": "nvidia.com/gpu_4x"}}}
+        ]
+
+        tasks, capacity = await bay_manager.get_capacity(tasks=task_data, job_definitions=job_definitions, taskid_to_job_definition_map=full_task_job_definition_map)
+        self.assertEqual(tasks, [])
+        self.assertEqual(capacity, {})

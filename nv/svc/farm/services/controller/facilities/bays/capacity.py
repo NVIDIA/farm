@@ -3,7 +3,7 @@
 
 """Farm Controller Bay Capacity Facilites."""
 
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional
 
 from . import BaseBays
 
@@ -29,7 +29,11 @@ class CapacityBasedBay(BaseBays):
         self._capacity_service_location = capacity_service_location
         self._mandatory_capacity = mandatory_capacity or []
 
-    async def get_capacity(self, tasks: Dict[Tuple[str, str], List[int]], job_definitions: List[Dict]) -> Tuple[List, Dict]:
+    async def get_capacity(self,
+                           tasks: Dict[Tuple[str, str], List[int]],
+                           job_definitions: List[Dict],
+                           taskid_to_job_definition_map: Optional[Dict[int, str]] = None,
+                           ) -> Tuple[List, Dict]:
         """
         Get list of tasks and the capacity available to currently run on the agent.
 

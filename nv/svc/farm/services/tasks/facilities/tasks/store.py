@@ -65,10 +65,10 @@ class TaskStore(base.Facility):
         self,
         task_id: str,
         status: status_utils.Status,
-        task_type: str = None,
-        task_function: str = None,
-        userid: str = None,
-        details: str = None,
+        task_type: Optional[str] = None,
+        task_function: Optional[str] = None,
+        userid: Optional[str] = None,
+        details: Optional[str] = None,
         timeout: int = 30
     ) -> None:
         """
@@ -254,9 +254,9 @@ class TaskStore(base.Facility):
 
     async def get_task(
         self,
-        task_id: str = None,
-        task_type: str = None,
-        task_function: str = None,
+        task_id: Optional[str] = None,
+        task_type: Optional[str] = None,
+        task_function: Optional[str] = None,
     ) -> Dict:
         """
         Return the unique task matching the given search criterias.
@@ -292,7 +292,7 @@ class TaskStore(base.Facility):
         self,
         task_type: Optional[str] = None,
         task_function: Optional[str] = None,
-        statuses: List[str] = None,
+        statuses: Optional[List[Union[str, status_utils.Status]]] = None,
         fields: Optional[List[str]] = None
     ) -> List[Dict]:
         """
@@ -301,7 +301,7 @@ class TaskStore(base.Facility):
         Args:
             task_type (Optional[str]): Type of the tasks to return.
             task_function (Optional[str]): Function of the tasks to return.
-            statuses (List[str]): List of task statuses to return.
+            statuses (Optional[List[Union[str, status_utils.Status]]]): List of task statuses to return.
             fields (Optional[List[str]]): Optional list of fields to include in the result. Default is to include all fields.
 
         Returns:
@@ -330,7 +330,7 @@ class TaskStore(base.Facility):
     async def update_status(
         self,
         task_id: str,
-        status: status_utils.Status,
+        status: Union[status_utils.Status, str],
         task_type: Optional[str] = None,
         task_function: Optional[str] = None,
         userid: Optional[str] = None,
