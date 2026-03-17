@@ -1,0 +1,19 @@
+
+{
+    "name": "df",
+    "job_type": "base",
+    "command": "/bin/df",
+    "args": [],
+    "task_function": "",
+    "env": {},
+    "log_to_stdout": true,
+    "extension_paths": [],
+    "allowed_args": {},
+    "headless": true,
+    "active": true,
+    "unresolved_command_path": "/bin/df",
+    "success_return_codes": [0],
+    "capacity_requirements": {},
+    "working_directory": "",
+    "container": "busybox:1.35"
+}

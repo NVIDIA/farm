@@ -437,6 +437,19 @@ apps:
       definitions:
       - df
       - nvidia-smi-check
+      # -- Map of custom job definitions to load alongside the bundled ones.
+      # Keys are filenames (e.g. my-job.json), values are the raw JSON content.
+      # @section -- Jobs
+      # extraJobDefinitions:
+      #   my-job.json: |
+      #     {
+      #       "name": "my-job",
+      #       "job_type": "base",
+      #       "command": "echo",
+      #       "args": ["hello"],
+      #       "container": "ubuntu:24.04"
+      #     }
+      extraJobDefinitions: {}
     # Jobs Application Specific Settings/Overrides
     # @section -- Jobs
     settings:
