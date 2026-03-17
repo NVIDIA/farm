@@ -58,6 +58,8 @@ jobs:
 
   publish-helm:
     name: Publish Helm
-    needs: [e2e]
+    needs: [e2e, determine-version]
     uses: ./.github/workflows/_helm-publish.yaml
+    with:
+      version: ${{ needs.determine-version.outputs.version }}
     secrets: inherit
