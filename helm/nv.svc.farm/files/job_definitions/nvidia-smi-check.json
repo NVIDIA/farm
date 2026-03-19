@@ -1,0 +1,24 @@
+{
+    "name": "nvidia-smi-check",
+    "job_type": "base",
+    "command": "nvidia-smi",
+    "args": [],
+    "task_function": "",
+    "env": {},
+    "log_to_stdout": true,
+    "extension_paths": [],
+    "allowed_args": {},
+    "headless": true,
+    "active": true,
+    "unresolved_command_path": "nvidia-smi",
+    "success_return_codes": [0],
+    "capacity_requirements": {
+      "resource_limits": {
+        "cpu": 1,
+        "memory": "4096Mi",
+        "nvidia.com/gpu": 1
+      }
+    },
+    "working_directory": "",
+    "container": "nvidia/cuda:12.2.0-base-ubuntu20.04"
+}

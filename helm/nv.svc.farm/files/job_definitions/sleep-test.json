@@ -1,0 +1,18 @@
+{
+    "name": "sleep-test",
+    "job_type": "base",
+    "command": "sleep",
+    "args": ["60"],
+    "task_function": "",
+    "env": {},
+    "log_to_stdout": true,
+    "extension_paths": [],
+    "allowed_args": {},
+    "headless": true,
+    "active": true,
+    "unresolved_command_path": "sleep",
+    "success_return_codes": [0],
+    "capacity_requirements": {},
+    "working_directory": "",
+    "container": "busybox:1.35"
+}

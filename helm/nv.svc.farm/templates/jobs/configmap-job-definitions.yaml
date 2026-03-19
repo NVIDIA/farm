@@ -11,8 +11,9 @@
   {{- end }}
 {{- end }}
 
+{{- $extraJobDefinitions := $mergedJobsSvc.serviceConfig.extraJobDefinitions | default dict -}}
 
-{{- if $jobList -}}
+{{- if or $jobList $extraJobDefinitions -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -22,7 +23,14 @@ metadata:
 data:
 {{ (.Files.Glob "files/scripts/load_job_definitions.sh").AsConfig | indent 2 }}
 {{- range $item := $jobList }}
-  {{ ($.Files.Glob $item ).AsConfig | nindent 2}}
+  {{- $fileContents := $.Files.Glob $item }}
+  {{- if $fileContents }}
+  {{ $fileContents.AsConfig | nindent 2}}
+  {{- end }}
+{{- end }}
+{{- range $name, $content := $extraJobDefinitions }}
+  {{ $name }}: |
+    {{ $content | nindent 4 }}
 {{- end }}
 
 {{- end }}

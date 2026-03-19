@@ -1,0 +1,38 @@
+{
+    "name": "slack-webhook-message",
+    "job_type": "base",
+    "command": "sh",
+    "args": [
+        "-c",
+        "curl -X POST \"$SLACK_WEBHOOK_URL\" -H \"Content-Type: application/json\" -d {\\\"text\\\":\\\"\"${1:-This is the default Slack webhook message. To modify it, specify <task_args.message> in your task submission.}\"\\\"}",
+        "sh"
+    ],
+    "allowed_args": {
+        "message": {
+            "arg": "2"
+        }
+    },
+    "task_function": "",
+    "env": {},
+    "log_to_stdout": true,
+    "extension_paths": [],
+    "headless": true,
+    "active": true,
+    "unresolved_command_path": "sh",
+    "success_return_codes": [0],
+    "capacity_requirements": {
+        "env": [
+            {
+                "name": "SLACK_WEBHOOK_URL",
+                "valueFrom": {
+                    "secretKeyRef": {
+                        "key": "SLACK_WEBHOOK_URL",
+                        "name": "slack-webhook-url"
+                    }
+                }
+            }
+        ]
+    },
+    "working_directory": "",
+    "container": "curlimages/curl:8.15.0"
+}

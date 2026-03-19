@@ -1,0 +1,22 @@
+{
+    "name": "echo",
+    "job_type": "base",
+    "command": "sh",
+    "args": [
+        "-c",
+        "echo \"${1:-This is the default echo message. To modify it, specify <task_args.message> in your task submission.}\"",
+        "sh"
+    ],
+    "allowed_args": {
+        "message": {
+            "arg": "2"
+        }
+    },
+    "headless": true,
+    "active": true,
+    "unresolved_command_path": "sh",
+    "success_return_codes": [0],
+    "capacity_requirements": {},
+    "working_directory": "",
+    "container": "ubuntu:24.04"
+}
