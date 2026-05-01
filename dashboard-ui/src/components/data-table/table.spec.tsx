@@ -5,7 +5,7 @@ import { render, RenderResult, cleanup } from "vitest-browser-react";
 import { BrowserRouter as Router } from "react-router";
 import type { ColumnConfig, RowData } from "~/utilities/table-data-utility";
 import { userEvent } from "@vitest/browser/context";
-import type { IconName } from "@nve/elements";
+import type { IconName } from "@nvidia-elements/core/icon";
 import { useDataFetcher } from "~/hooks/data-fetcher";
 import { useRowData } from "~/hooks/row-data";
 import { useTableSearchParams } from "~/hooks/table-search-params";
@@ -276,11 +276,12 @@ async function waitForClearedTags(screen: RenderResult) {
 }
 
 async function waitForLoadingToFinish(screen: RenderResult) {
+    globalThis.NVE_ELEMENTS.state.env = "production"; // disable dev time logs
     await vi.waitUntil(
-        () => screen.baseElement.querySelector("nve-progress-ring") != null
+        () => screen.baseElement.querySelector("nve-page-loader") != null
     );
     await vi.waitUntil(
-        () => screen.baseElement.querySelector("nve-progress-ring") === null
+        () => screen.baseElement.querySelector("nve-page-loader") === null
     );
 }
 

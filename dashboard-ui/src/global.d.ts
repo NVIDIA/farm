@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // src/global.d.ts
-import type { CustomElements } from "@nve/elements/custom-elements-jsx";
+import type { CustomElements } from "@nvidia-elements/core/custom-elements-jsx";
 
 declare module "react/jsx-runtime" {
     namespace JSX {

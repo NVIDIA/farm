@@ -15,9 +15,9 @@
         "test:e2e": "playwright test"
     },
     "dependencies": {
-        "@nve/elements": "file:./@nve/elements",
-        "@nve/styles": "file:./@nve/styles",
-        "@nve/themes": "file:./@nve/themes",
+        "@nvidia-elements/core": "0.0.12",
+        "@nvidia-elements/styles": "0.0.8",
+        "@nvidia-elements/themes": "0.0.9",
         "@tanstack/react-virtual": "^3.11.2",
         "@xyflow/react": "^12.9.2",
         "axios": "^1.7.9",

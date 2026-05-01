@@ -1,8 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { sidePanelMenuStyles } from "./side-panel.css";
-
 interface SidePanelNavLinkProps {
     to: string;
     label: string;
@@ -27,17 +25,14 @@ interface SidePanelProps {
 
 export function SidePanel(props: SidePanelProps) {
     return (
-        <nve-panel behavior-expand expanded style={{ height: "100%" }}>
-            <nve-panel-header>
-                <div slot="title">Dashboards</div>
-            </nve-panel-header>
-            <nve-panel-content>
-                <nve-menu className={sidePanelMenuStyles}>
+        <nve-page-panel slot="left-aside" style={{ width: "250px" }}>
+            <nve-page-panel-content>
+                <nve-menu>
                     {props.navLinks.map((link) => (
                         <SidePanelNavLink key={link.label} {...link} />
                     ))}
                 </nve-menu>
-            </nve-panel-content>
-        </nve-panel>
+            </nve-page-panel-content>
+        </nve-page-panel>
     );
 }

@@ -22,7 +22,7 @@ type Selected = "details" | "metrics" | "logs" | "revisions";
 
 function getDetails(task: ApiTask): JSX.Element {
     return (
-        <div nve-layout="grid gap:lg span-items:12">
+        <div nve-layout="grid gap:lg span-items:12 pad:lg">
             <KeyValueField name="Id" value={task.id} />
             <KeyValueField name="User Id" value={task.userId} />
             <GridField name="Status">
@@ -162,21 +162,7 @@ function Task() {
     ]);
 
     return (
-        <div nve-layout="column gap:lg align:stretch">
-            {error && (
-                <nve-alert-group status="danger" title="Error loading task">
-                    <nve-alert
-                        closable
-                        onclose={() => {
-                            resetLogs();
-                            resetRevisions();
-                            resetTask();
-                        }}
-                    >
-                        {error}
-                    </nve-alert>
-                </nve-alert-group>
-            )}
+        <>
             <PageHeader
                 title={`Task ${task?.id ?? ""}`}
                 actions={
@@ -184,17 +170,33 @@ function Task() {
                 }
                 tabs={tabs}
             />
-            <ContentLoader
-                loading={taskLoading || revisionsLoading || logsLoading}
-            >
-                {selected === "details" && task ? getDetails(task) : ""}
-                {selected === "metrics" ? getMetrics(task) : ""}
-                {getLogs(selected === "logs", logs?.logs)}
-                {selected === "revisions" && (
-                    <RevisionTable revisions={revisions || []} />
+            <div nve-layout="column gap:md align:stretch">
+                {error && (
+                    <nve-alert-group status="danger" title="Error loading task">
+                        <nve-alert
+                            closable
+                            onclose={() => {
+                                resetLogs();
+                                resetRevisions();
+                                resetTask();
+                            }}
+                        >
+                            {error}
+                        </nve-alert>
+                    </nve-alert-group>
                 )}
-            </ContentLoader>
-        </div>
+                <ContentLoader
+                    loading={taskLoading || revisionsLoading || logsLoading}
+                >
+                    {selected === "details" && task ? getDetails(task) : ""}
+                    {selected === "metrics" ? getMetrics(task) : ""}
+                    {getLogs(selected === "logs", logs?.logs)}
+                    {selected === "revisions" && (
+                        <RevisionTable revisions={revisions || []} />
+                    )}
+                </ContentLoader>
+            </div>
+        </>
     );
 }
 

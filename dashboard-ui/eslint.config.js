@@ -10,7 +10,7 @@ import prettierConfig from "./.prettierrc.js";
 
 export default defineConfig(
     // Ignore patterns
-    { ignores: ["dist", "public", "@nve"] },
+    { ignores: ["dist", "public"] },
     // Base JS and TS recommended flat configs
     eslint.configs.recommended,
     tseslint.configs.recommended,

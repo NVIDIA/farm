@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { SupportStatus } from "@nve/elements";
+import type { SupportStatus } from "@nvidia-elements/core";
 // using native custom element
 
 type Status = SupportStatus | null;

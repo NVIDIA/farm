@@ -123,6 +123,7 @@ export default function Filter<T>({
                 slot="actions"
                 icon-name="filter"
                 size="sm"
+                container="flat"
                 popovertarget={`${id}-${column.id}`}
             ></nve-icon-button>
             <nve-dropdown id={`${id}-${column.id}`}>

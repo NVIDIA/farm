@@ -6,7 +6,7 @@ import Cell from "./cell";
 import Pagination from "./pagination";
 import { GridColumn } from "./grid-column";
 import { useId, useMemo } from "react";
-import type { IconName } from "@nve/elements";
+import type { IconName } from "@nvidia-elements/core/icon";
 import type { Query } from "~/hooks/table-search-params";
 
 type Sort = Query["sort"];
@@ -118,7 +118,7 @@ function DataTable<T>({
     );
 
     return (
-        <div nve-layout="full">
+        <div nve-layout="full pad-x:lg">
             <div nve-layout="row align:right pad-y:xs pad-x:sm">
                 <Pagination
                     page={query.page}
@@ -128,7 +128,7 @@ function DataTable<T>({
                     onStep={onStepChange}
                 />
             </div>
-            <nve-grid stripe>
+            <nve-grid stripe style={{ minHeight: "500px" }}>
                 <nve-grid-header>
                     {hasBulkSelect && (
                         <nve-grid-column width="max-content" position="fixed">

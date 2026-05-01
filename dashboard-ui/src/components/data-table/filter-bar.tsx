@@ -39,7 +39,7 @@ function DataTableFilterBar({
     }, 500);
 
     return (
-        <div nve-layout="row" data-testid="FilterBar">
+        <div nve-layout="row pad-x:lg pad-top:lg" data-testid="FilterBar">
             <nve-toolbar container="flat">
                 <nve-icon-button
                     readonly

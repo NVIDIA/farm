@@ -1,16 +1,13 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useCallback, useId, useState } from "react";
+import { useCallback, useId } from "react";
 import { useNavigate } from "react-router";
 import { useUserContext } from "~/contexts/user-context/utils";
 
 export function AppHeader() {
     const user = useUserContext();
-    const [hidden, setHidden] = useState(true);
     const navigate = useNavigate();
-    const onUserMenuOpen = () => setHidden(false);
-    const onUserMenuClose = () => setHidden(true);
     const dropdownId = useId();
     const loginBtnText = user.userId ? "logout" : "login";
 
@@ -23,24 +20,22 @@ export function AppHeader() {
     }, [navigate, user, loginBtnText]);
 
     return (
-        <nve-app-header>
-            <nve-logo size="sm">
-                <img style={{ width: "40px" }} src="logo.png" />
+        <nve-page-header slot="header">
+            <nve-logo slot="prefix" size="sm">
+                <img style={{ width: "32px" }} src="logo.png" />
             </nve-logo>
-            <h2 slot="title">FARM</h2>
+            <h2 slot="prefix" nve-text="heading sm">
+                FARM
+            </h2>
             <nve-button
-                id={`app-header-dropdown-${dropdownId}`}
-                slot="nav-actions"
-                pressed={!hidden}
+                slot="suffix"
+                container="flat"
+                popovertarget={`app-header-dropdown-${dropdownId}`}
             >
-                <nve-icon name="person"></nve-icon> {user.userId}
+                {user.userId} <nve-icon name="person"></nve-icon>
             </nve-button>
             <nve-dropdown
-                trigger={`app-header-dropdown-${dropdownId}`}
-                behavior-trigger
-                onopen={onUserMenuOpen}
-                onclose={onUserMenuClose}
-                hidden={hidden}
+                id={`app-header-dropdown-${dropdownId}`}
                 position="bottom"
                 alignment="end"
             >
@@ -50,6 +45,6 @@ export function AppHeader() {
                     </nve-menu-item>
                 </nve-menu>
             </nve-dropdown>
-        </nve-app-header>
+        </nve-page-header>
     );
 }

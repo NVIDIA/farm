@@ -172,95 +172,101 @@ function TaskEdit(): JSX.Element {
     }
 
     return (
-        <div nve-layout="column gap:lg align:stretch">
+        <>
             <PageHeader title={`Task ${id}`} tabs={tabs} />
-            <ContentLoader
-                nve-layout="column gap:md"
-                loading={taskLoading || submitTaskLoading}
-            >
-                {task && editableTask.current && selected === "details" && (
-                    <>
-                        <KeyValueField
-                            name="Id"
-                            value={task.id}
-                            link={`/task/${task?.id}`}
-                        />
-                        <KeyValueField name="User Id" value={task.userId} />
-                        <KeyValueField
-                            name="Taskflow Id"
-                            value={task.metadata.dag?.id}
-                            link={`/taskflow/${task?.metadata.dag?.id}`}
-                        />
-                        <KeyValueField name="Type" value={task.type} />
-                        <KeyValueField
-                            name="Function Name"
-                            value={task.functionName}
-                        />
-                        <GridField name="Status">
-                            <TaskStatusBadge status={task.status} />
-                        </GridField>
-                        <KeyValueField name="Details" value={task.details} />
-                        <GridField name="Progress">
-                            <TaskProgressBar
-                                progress={task.progress?.progress}
-                                status={task.status}
+            <div nve-layout="column gap:lg pad:lg">
+                <ContentLoader loading={taskLoading || submitTaskLoading}>
+                    {task && editableTask.current && selected === "details" && (
+                        <>
+                            <KeyValueField
+                                name="Id"
+                                value={task.id}
+                                link={`/task/${task?.id}`}
                             />
-                        </GridField>
-                        <KeyValueInput
-                            name="Priority"
-                            value={editableTask.current.priority}
-                            onEdit={onInputFieldChanged}
-                            isNumeric
-                        />
-                        <KeyValueInput
-                            name="Comment"
-                            value={editableTask.current.comment}
-                            isMultiLine
-                            onEdit={onInputFieldChanged}
-                        />
-                    </>
-                )}
-
-                {task && editableTask.current && selected === "taskArgs" && (
-                    <JsonInput
-                        name="Task Args"
-                        defaultValue={editableTask.current.args}
-                        onEdit={onJsonInputFieldChanged}
-                    />
-                )}
-
-                {task &&
-                    editableTask.current &&
-                    selected === "functionArgs" && (
-                        <JsonInput
-                            name="Function Args"
-                            defaultValue={editableTask.current.functionArgs}
-                            onEdit={onJsonInputFieldChanged}
-                        />
+                            <KeyValueField name="User Id" value={task.userId} />
+                            <KeyValueField
+                                name="Taskflow Id"
+                                value={task.metadata.dag?.id}
+                                link={`/taskflow/${task?.metadata.dag?.id}`}
+                            />
+                            <KeyValueField name="Type" value={task.type} />
+                            <KeyValueField
+                                name="Function Name"
+                                value={task.functionName}
+                            />
+                            <GridField name="Status">
+                                <TaskStatusBadge status={task.status} />
+                            </GridField>
+                            <KeyValueField
+                                name="Details"
+                                value={task.details}
+                            />
+                            <GridField name="Progress">
+                                <TaskProgressBar
+                                    progress={task.progress?.progress}
+                                    status={task.status}
+                                />
+                            </GridField>
+                            <KeyValueInput
+                                name="Priority"
+                                value={editableTask.current.priority}
+                                onEdit={onInputFieldChanged}
+                                isNumeric
+                            />
+                            <KeyValueInput
+                                name="Comment"
+                                value={editableTask.current.comment}
+                                isMultiLine
+                                onEdit={onInputFieldChanged}
+                            />
+                        </>
                     )}
 
-                {task && editableTask.current && selected === "metadata" && (
-                    <JsonInput
-                        name="Metadata"
-                        defaultValue={editableTask.current.metadata}
-                        onEdit={onJsonInputFieldChanged}
-                    />
-                )}
+                    {task &&
+                        editableTask.current &&
+                        selected === "taskArgs" && (
+                            <JsonInput
+                                name="Task Args"
+                                defaultValue={editableTask.current.args}
+                                onEdit={onJsonInputFieldChanged}
+                            />
+                        )}
 
-                <nve-button
-                    interaction="emphasis"
-                    size="lg"
-                    onClick={() => {
-                        fetchSubmitTaskData(userId, {
-                            editableTask: editableTask.current ?? undefined,
-                            editedFields: editedFields.current ?? undefined,
-                        });
-                    }}
-                >
-                    Submit
-                </nve-button>
-            </ContentLoader>
-        </div>
+                    {task &&
+                        editableTask.current &&
+                        selected === "functionArgs" && (
+                            <JsonInput
+                                name="Function Args"
+                                defaultValue={editableTask.current.functionArgs}
+                                onEdit={onJsonInputFieldChanged}
+                            />
+                        )}
+
+                    {task &&
+                        editableTask.current &&
+                        selected === "metadata" && (
+                            <JsonInput
+                                name="Metadata"
+                                defaultValue={editableTask.current.metadata}
+                                onEdit={onJsonInputFieldChanged}
+                            />
+                        )}
+
+                    <nve-button
+                        interaction="emphasis"
+                        size="lg"
+                        onClick={() => {
+                            fetchSubmitTaskData(userId, {
+                                editableTask: editableTask.current ?? undefined,
+                                editedFields: editedFields.current ?? undefined,
+                            });
+                        }}
+                    >
+                        Submit
+                    </nve-button>
+                </ContentLoader>
+            </div>
+        </>
     );
 }
 
