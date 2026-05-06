@@ -2,31 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { PropsWithChildren } from "react";
-import { ContainerLoader } from "./container-loader";
-import {
-    ContentLoaderStyles,
-    ContentLoaderStretch,
-} from "./content-loader.css";
 
 type ContentLoaderProps = PropsWithChildren<{
     loading: boolean;
     stretch?: boolean;
 }>;
 
-function ContentLoader({
-    loading,
-    children,
-    stretch = false,
-    ...props
-}: ContentLoaderProps) {
-    const className = stretch
-        ? `${ContentLoaderStyles} ${ContentLoaderStretch}`
-        : ContentLoaderStyles;
+function ContentLoader({ loading, children }: ContentLoaderProps) {
     return (
-        <div className={className} {...props}>
-            <ContainerLoader loading={loading} />
+        <>
+            {loading && <nve-page-loader></nve-page-loader>}
             {children}
-        </div>
+        </>
     );
 }
 

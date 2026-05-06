@@ -56,7 +56,7 @@ function Job(): JSX.Element {
             nve-layout="column align:stretch gap:xl"
         >
             <PageHeader title="Definition" />
-            <div nve-layout="grid gap:md span-items:12">
+            <div nve-layout="grid gap:md span-items:12 pad:lg">
                 <KeyValueField name="name" value={definition?.name} />
                 <KeyValueField name="job_type" value={definition?.job_type} />
                 <KeyValueField name="command" value={definition?.command} />

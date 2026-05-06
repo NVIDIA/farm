@@ -4,7 +4,7 @@
 import { Fragment, useMemo } from "react";
 import { Handle, Position } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { type SupportStatus } from "@nve/elements";
+import type { SupportStatus } from "@nvidia-elements/core";
 import { theme } from "~/styles/theme.gen.css";
 import { TaskStatus } from "~/library/task-service";
 import { TaskStatusBadge } from "./task-status-badge";

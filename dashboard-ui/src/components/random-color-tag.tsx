@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useMemo } from "react";
-import { Color } from "@nve/elements";
+import type { Color } from "@nvidia-elements/core";
 
 const colors = [
     "red-cardinal",

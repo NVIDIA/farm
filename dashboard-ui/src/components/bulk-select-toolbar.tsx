@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { IconName } from "@nve/elements";
+import type { IconName } from "@nvidia-elements/core/icon";
 import { useMemo } from "react";
 
 interface Action {
@@ -40,7 +40,7 @@ function BulkSelectToolbar({
                     onClick={onClose}
                 ></nve-icon-button>
             )}
-            <p nve-text="boxy">{selectedCount} selected</p>
+            <p nve-text="body">{selectedCount} selected</p>
             <nve-icon-button
                 popovertarget="toolbar-dropdown-menu"
                 container="flat"

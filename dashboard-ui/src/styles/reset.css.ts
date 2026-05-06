@@ -27,9 +27,15 @@ globalStyle("nve-icon", {
     height: "1em",
 });
 
-globalStyle(
-    "mlv-grid:has(mlv-toolbar:not([hidden]))::part(_scrollbox), nve-grid:has(nve-toolbar:not([hidden]))::part(_scrollbox)",
-    {
-        paddingBottom: "0px !important",
-    }
-);
+globalStyle("nve-grid:has(nve-toolbar:not([hidden]))::part(_scrollbox)", {
+    paddingBottom: "0px !important",
+});
+
+globalStyle("nve-page-loader::backdrop", {
+    inset: "48px 0 0 250px !important",
+    backgroundColor: "rgba(0, 0, 0, 0.1) !important",
+});
+
+globalStyle("nve-page-loader::part(progress-ring)", {
+    margin: "48px 0 0 250px !important",
+});

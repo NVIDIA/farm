@@ -15,11 +15,7 @@ function DataTableContentLoader({
     stretch = false,
 }: DataTableContentLoaderProps) {
     return (
-        <ContentLoader
-            nve-layout="column gap:sm"
-            loading={loading}
-            stretch={stretch}
-        >
+        <ContentLoader loading={loading} stretch={stretch}>
             {children}
         </ContentLoader>
     );

@@ -2,12 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ReactNode } from "react";
-import {
-    appContainer,
-    appContent,
-    appHeader,
-    appSidebar,
-} from "./app-layout.css";
 import { AppHeader } from "./app-header";
 import { SidePanel } from "./side-panel";
 import { useLocation, useNavigate } from "react-router";
@@ -41,20 +35,16 @@ export function AppLayout({ children }: { children: ReactNode }) {
     const location = useLocation();
 
     return (
-        <div className={appContainer}>
-            <div className={appHeader}>
-                <AppHeader />
-            </div>
-            <div className={appSidebar}>
-                <SidePanel
-                    navLinks={sidePanelNavLinks.map((link) => ({
-                        ...link,
-                        active: location.pathname === link.path,
-                        navigate: () => navigate(link.to),
-                    }))}
-                />
-            </div>
-            <div className={appContent}>{children}</div>
-        </div>
+        <nve-page>
+            <AppHeader />
+            <SidePanel
+                navLinks={sidePanelNavLinks.map((link) => ({
+                    ...link,
+                    active: location.pathname === link.path,
+                    navigate: () => navigate(link.to),
+                }))}
+            />
+            {children}
+        </nve-page>
     );
 }

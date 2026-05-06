@@ -15,8 +15,8 @@ import React, {
 import { useDebouncedCallback } from "use-debounce";
 
 // NVIDIA
-import { Color } from "@nve/elements";
-import type { IconName } from "@nve/elements";
+import type { Color } from "@nvidia-elements/core";
+import type { IconName } from "@nvidia-elements/core/icon";
 
 // LOCAL
 import { LogViewerWindowStyles } from "~/components/log-viewer.css";
@@ -437,7 +437,7 @@ function LogViewer({ logs }: LogViewerProperties): JSX.Element {
     ]);
 
     return (
-        <div nve-layout="column gap:md align:stretch">
+        <div nve-layout="column gap:md align:stretch pad:lg">
             <FiltersRow
                 counts={filteredLogCounts}
                 filters={filters}

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { TaskStatus } from "~/library/task-service";
-import { TaskStatus as NveTaskStatus } from "@nve/elements";
+import type { TaskStatus as NveTaskStatus } from "@nvidia-elements/core";
 
 const taskStatusMap: { [key: string]: NveTaskStatus } = {
     submitted: "scheduled",

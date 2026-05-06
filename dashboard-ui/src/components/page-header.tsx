@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // Using native custom elements
-import type { IconName } from "@nve/elements";
+import type { IconName } from "@nvidia-elements/core/icon";
 
 export interface PageHeaderAction {
     label: string;
@@ -13,11 +13,13 @@ export interface PageHeaderAction {
 
 function PageHeader({
     title,
+    leading,
     tabs,
     metadata,
     actions,
 }: {
     title: string;
+    leading?: React.ReactNode;
     tabs?: {
         items: { label: string; value: string }[];
         selected: string;
@@ -27,11 +29,12 @@ function PageHeader({
     actions?: React.ReactNode;
 }) {
     return (
-        <nve-card container="full" style={{ width: "100%", flexShrink: 0 }}>
-            <nve-card-content>
+        <nve-page-panel slot="subheader">
+            <nve-page-panel-content>
                 <div nve-layout="column gap:md align:stretch">
                     <div nve-layout="row align:space-between align:vertical-center">
                         <section nve-layout="row gap:sm align:vertical-center">
+                            {leading}
                             <h1 nve-text="heading lg semibold">{title}</h1>
                         </section>
 
@@ -62,8 +65,8 @@ function PageHeader({
                         </nve-tabs>
                     )}
                 </div>
-            </nve-card-content>
-        </nve-card>
+            </nve-page-panel-content>
+        </nve-page-panel>
     );
 }
 
