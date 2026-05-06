@@ -719,13 +719,14 @@ class TaskManager:
         job_definitions: List[Dict[str, Any]] = await self.get_job_type_definitions()
         task_types = await self.get_task_types()
 
-        active_tasks = {}
+        active_tasks: Dict[Tuple[str, str], List[str]] = {}
         for task_type, task_function in task_types:
-            active_tasks[(task_type, task_function)] = await self._task_store.get_tasks(
+            tasks = await self._task_store.get_tasks(
                 task_type=task_type,
                 task_function=task_function,
                 statuses=["running", "starting"],
             )
+            active_tasks[(task_type, task_function)] = [t["task_id"] for t in tasks]
 
         possible_tasks, capacity = await self._bay_manager.get_capacity(
             active_tasks,

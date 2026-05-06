@@ -17,7 +17,7 @@ from nv.svc.core.client.http import HTTPClientSession
 from nv.svc.farm.services.tasks.facilities.tasks import backends, store
 
 from nv.svc.farm.services.controller.config import FarmControllerConfig
-from nv.svc.farm.services.controller.facilities.bays import OneSlotBay
+from nv.svc.farm.services.controller.facilities.bays import MultiSlotBay, OneSlotBay
 from nv.svc.farm.services.controller.task_manager import TaskManager, get_utc_unixtime
 
 from ._mocks import MockJobStore, MockProcessManager
@@ -487,6 +487,50 @@ class TestTaskManager(IsolatedAsyncioTestCase):
                 updated_task = task
 
         self.assertIsNone(updated_task)
+
+    async def _stub_post_launch_transitions(self):
+        """Replace post-launch status transitions with no-ops so tests can focus on the fetch+capacity path."""
+        async def noop(*args, **kwargs):
+            return None
+        self._manager._set_task_status = noop
+        self._manager.set_task_errored = noop
+
+    async def test_get_task_with_real_multislot_bay_and_no_active_tasks(self):
+        """MultiSlotBay reports capacity when nothing is running, and _get_task fetches."""
+        self._manager._bay_manager = MultiSlotBay(max_capacity=4)
+        self.TEST_FETCH_TASK_STATUS_ID = "fetched-when-empty"
+        await self._stub_post_launch_transitions()
+
+        submitted = await self._manager._get_task()
+
+        self.assertTrue(submitted, "_get_task should claim a task when the bay has capacity")
+
+    async def test_get_task_with_real_multislot_bay_and_multiple_active_tasks(self):
+        """MultiSlotBay reports capacity for more work when active tasks remain under the cap."""
+        self._manager._bay_manager = MultiSlotBay(max_capacity=10)
+        await self._generate_tasks(running_count=3)
+        self.TEST_FETCH_TASK_STATUS_ID = "fetched-when-three-running"
+        await self._stub_post_launch_transitions()
+
+        submitted = await self._manager._get_task()
+
+        self.assertTrue(
+            submitted,
+            "_get_task should claim a task when bay has capacity for more, even with active tasks present",
+        )
+
+    async def test_get_task_with_real_multislot_bay_at_max_capacity(self):
+        """MultiSlotBay refuses to advertise capacity once active tasks hit max_capacity."""
+        self._manager._bay_manager = MultiSlotBay(max_capacity=2)
+        await self._generate_tasks(running_count=2)
+        await self._stub_post_launch_transitions()
+
+        submitted = await self._manager._get_task()
+
+        self.assertFalse(
+            submitted,
+            "_get_task should not claim a task when active GPU usage already meets max_capacity",
+        )
 
     async def test_fetched_task_from_queue_is_in_pending(self):
         """When we fetch a task from the queue we put in a pending state while the operator hasn't looked at it"""

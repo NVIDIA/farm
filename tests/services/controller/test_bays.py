@@ -32,7 +32,7 @@ class TestOnSlotBay(IsolatedAsyncioTestCase):
     async def test_noavailable_capacity(self):
         bay_manager = OneSlotBay()
 
-        task_data = {("foo", "bar"): [], ("baz", "qux"): [12345]}
+        task_data = {("foo", "bar"): [], ("baz", "qux"): ["12345"]}
 
         tasks, capacity = await bay_manager.get_capacity(tasks=task_data, job_definitions=[])
         self.assertEqual(tasks, [])
@@ -53,7 +53,7 @@ class TestMultiSlotBay(IsolatedAsyncioTestCase):
     async def test_noavailable_capacity(self):
         bay_manager = MultiSlotBay(max_capacity=2)
 
-        task_data = {("foo", "bar"): [67890], ("baz", "qux"): [12345]}
+        task_data = {("foo", "bar"): ["67890"], ("baz", "qux"): ["12345"]}
 
         tasks, capacity = await bay_manager.get_capacity(tasks=task_data, job_definitions=[])
         self.assertEqual(tasks, [])
@@ -90,7 +90,7 @@ class TestFileBasedMultiSlotBay(IsolatedAsyncioTestCase):
 
             bay_manager = FileBasedMultiSlotBay(file.name)
 
-            task_data = {("foo", "bar"): [67890], ("baz", "qux"): [12345]}
+            task_data = {("foo", "bar"): ["67890"], ("baz", "qux"): ["12345"]}
 
             tasks, capacity = await bay_manager.get_capacity(tasks=task_data, job_definitions=[])
             self.assertEqual(tasks, [])
@@ -107,7 +107,7 @@ class TestFileBasedMultiSlotBay(IsolatedAsyncioTestCase):
 
             bay_manager = FileBasedMultiSlotBay(file.name)
 
-            task_data = {("foo", "bar"): [67890], ("baz", "qux"): [12345]}
+            task_data = {("foo", "bar"): ["67890"], ("baz", "qux"): ["12345"]}
 
             tasks, capacity = await bay_manager.get_capacity(tasks=task_data, job_definitions=[])
             self.assertEqual(tasks, [])
@@ -332,12 +332,12 @@ class TestCapacityBay(CustomIsolatedAsyncioTestCase):
 
         bay_manager = MultiSlotBay(max_capacity=10)
 
-        not_full_task_job_definition_map: Dict[int, str] = {
-            123: "single-gpu",
-            124: "multi-gpu",
-            125: "multi-gpu"
+        not_full_task_job_definition_map: Dict[str, str] = {
+            "123": "single-gpu",
+            "124": "multi-gpu",
+            "125": "multi-gpu"
         }
-        task_data: Dict[Tuple[str, str], List[int]] = {("kit-service", "render.run"): list(not_full_task_job_definition_map.keys())}
+        task_data: Dict[Tuple[str, str], List[str]] = {("kit-service", "render.run"): list(not_full_task_job_definition_map.keys())}
         job_definitions: List[Dict[str, Any]] = [
             {"name": "single-gpu", "job_type": "kit-service", "task_function": "render.run", "capacity_requirements": {"gpuSpecification": {"instanceType": "nvidia.com/gpu_1x"}}},
             {"name": "multi-gpu", "job_type": "kit-service", "task_function": "render.run", "capacity_requirements": {"gpuSpecification": {"instanceType": "nvidia.com/gpu_4x"}}}
@@ -353,15 +353,15 @@ class TestCapacityBay(CustomIsolatedAsyncioTestCase):
         bay_manager = MultiSlotBay(max_capacity=10)
 
         # this list of tasks should exceed the gpu capacity, but if we're not calculating gpus properly, it'll fit when tasks:gpus are 1:1.
-        full_task_job_definition_map: Dict[int, str] = {
-            123: "single-gpu",
-            124: "multi-gpu",
-            125: "multi-gpu",
-            126: "multi-gpu",
-            127: "multi-gpu",
-            128: "multi-gpu"
+        full_task_job_definition_map: Dict[str, str] = {
+            "123": "single-gpu",
+            "124": "multi-gpu",
+            "125": "multi-gpu",
+            "126": "multi-gpu",
+            "127": "multi-gpu",
+            "128": "multi-gpu"
         }
-        task_data: Dict[Tuple[str, str], List[int]] = {("kit-service", "render.run"): list(full_task_job_definition_map.keys())}
+        task_data: Dict[Tuple[str, str], List[str]] = {("kit-service", "render.run"): list(full_task_job_definition_map.keys())}
         job_definitions: List[Dict[str, Any]] = [
             {"name": "single-gpu", "job_type": "kit-service", "task_function": "render.run", "capacity_requirements": {"gpuSpecification": {"instanceType": "nvidia.com/gpu_1x"}}},
             {"name": "multi-gpu", "job_type": "kit-service", "task_function": "render.run", "capacity_requirements": {"gpuSpecification": {"instanceType": "nvidia.com/gpu_4x"}}}
