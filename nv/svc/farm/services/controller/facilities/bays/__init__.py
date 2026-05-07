@@ -18,12 +18,12 @@ class BaseBays(abc.ABC):
         self._used = []
 
     @abc.abstractmethod
-    async def get_capacity(self, tasks: Dict[Tuple[str, str], List[int]], job_definitions: List[Dict], taskid_to_job_definition_map: Dict[int, str] = {}) -> Tuple[List, Dict]:
+    async def get_capacity(self, tasks: Dict[Tuple[str, str], List[str]], job_definitions: List[Dict], taskid_to_job_definition_map: Dict[int, str] = {}) -> Tuple[List, Dict]:
         """
         Get list of tasks and the capacity available to currently run on the agent.
 
         Args:
-            tasks (Dict[Tuple[str, str], List[int]]): List of currently active tasks and their types.
+            tasks (Dict[Tuple[str, str], List[str]]): List of currently active tasks and their types.
             job_definitions (List[Dict]): A list of the available jobs an agent can run.
         """
         pass
@@ -52,7 +52,7 @@ class BaseBays(abc.ABC):
 class OneSlotBay(BaseBays):
     """One-slot bay."""
 
-    async def get_capacity(self, tasks: Dict[Tuple[str, str], List[int]], job_definitions: List[Dict], taskid_to_job_definition_map: Dict[int, str] = {}) -> Tuple[List, Dict]:
+    async def get_capacity(self, tasks: Dict[Tuple[str, str], List[str]], job_definitions: List[Dict], taskid_to_job_definition_map: Dict[int, str] = {}) -> Tuple[List, Dict]:
         """
         Return the capacity for the given tasks.
 
@@ -104,7 +104,7 @@ class MultiSlotBay(BaseBays):
         return 1
 
 
-    async def get_capacity(self, tasks: Dict[Tuple[str, str], List[int]], job_definitions: List[Dict[str, Any]], taskid_to_job_definition_map: Dict[int, str] = {}) -> Tuple[List, Dict]:
+    async def get_capacity(self, tasks: Dict[Tuple[str, str], List[str]], job_definitions: List[Dict[str, Any]], taskid_to_job_definition_map: Dict[int, str] = {}) -> Tuple[List, Dict]:
         """
         Return the capacity for the given tasks.
 
@@ -164,6 +164,6 @@ class FileBasedMultiSlotBay(MultiSlotBay):
 
         return 0
 
-    async def get_capacity(self, tasks: Dict[Tuple[str, str], List[int]], job_definitions: List[Dict], taskid_to_job_definition_map: Dict[int, str] = {}) -> Tuple[List, Dict]:
+    async def get_capacity(self, tasks: Dict[Tuple[str, str], List[str]], job_definitions: List[Dict], taskid_to_job_definition_map: Dict[int, str] = {}) -> Tuple[List, Dict]:
         self._max_capacity = self._get_capacity_limit(self._capacity_file)
         return await super().get_capacity(tasks, job_definitions, taskid_to_job_definition_map)

@@ -1,2 +1,2 @@
-npx --no-install lint-staged --cwd ./dashboard-ui --allow-empty
+( cd dashboard-ui && npx --no-install lint-staged --allow-empty )
 make lint
